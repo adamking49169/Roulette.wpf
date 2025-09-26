@@ -5,8 +5,8 @@ using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
-using Media = System.Windows.Media;          // alias for WPF media types
-using Core = Roulette.Core;                  // alias for your core namespace
+using Media = System.Windows.Media;
+using Core = Roulette.Core;
 
 namespace Roulette.Wpf.ViewModels;
 
@@ -15,7 +15,8 @@ public sealed class GameViewModel : INotifyPropertyChanged
     public event PropertyChangedEventHandler? PropertyChanged;
     void Raise([CallerMemberName] string? n = null) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(n));
 
-    // ===== Chips =====
+    // ===== Chips (common casino denominations/colours) =====
+    // 1=White, 2=Blue, 5=Red, 10=Black, 20=Green, 50=Purple
     public ObservableCollection<int> ChipValues { get; } = new(new[] { 1, 2, 5, 10, 20, 50 });
     int _selectedChipValue = 5;
     public int SelectedChipValue { get => _selectedChipValue; set { _selectedChipValue = value; Raise(); } }
@@ -27,7 +28,7 @@ public sealed class GameViewModel : INotifyPropertyChanged
     public ObservableCollection<CellView> OutsideDozens { get; } = new();     // Dozen 1/2/3
     public ObservableCollection<CellView> OutsideColumns { get; } = new();    // Column 1/2/3
 
-    // ===== Bets summary for the right list =====
+    // ===== Bets summary =====
     public ObservableCollection<BetView> Bets { get; } = new();
 
     // ===== Result =====
@@ -51,7 +52,6 @@ public sealed class GameViewModel : INotifyPropertyChanged
     {
         BuildCells();
 
-        // respond to stake changes
         Subscribe(NumberCells);
         Subscribe(ZeroCell);
         Subscribe(OutsideEvenMoney);
@@ -64,6 +64,9 @@ public sealed class GameViewModel : INotifyPropertyChanged
             if (keyObj is not string key) return;
             var cell = FindCell(key);
             if (cell is null) return;
+
+            // Assign chip brush based on currently selected chip
+            cell.ChipBrush = GetChipBrushForValue(SelectedChipValue);
             cell.Stake += SelectedChipValue;
         });
 
@@ -81,43 +84,59 @@ public sealed class GameViewModel : INotifyPropertyChanged
 
     void BuildCells()
     {
-        // Zero
-        ZeroCell.Add(new CellView("N:0", "0", new Media.SolidColorBrush(Media.Colors.Green)));
+        // Zero cell (single tall)
+        ZeroCell.Add(new CellView("N:0", "0", new Media.SolidColorBrush(Media.Color.FromRgb(14, 122, 58))));
 
-        // Numbers 1..36 arranged 3 rows x 12 columns (top row = 3,6,... bottom = 1,4,...)
-        var ordered = Enumerable.Range(1, 36)
-            .OrderBy(n => (n - 1) % 3) // row
-            .ThenBy(n => (n - 1) / 3)  // column
-            .ToList();
+        // Numbers 1..36 laid out to visually match real table:
+        // bottom row: 1,4,7,...,34
+        // middle:     2,5,8,...,35
+        // top:        3,6,9,...,36
+        var bottom = Enumerable.Range(1, 36).Where(n => n % 3 == 1);
+        var middle = Enumerable.Range(1, 36).Where(n => n % 3 == 2);
+        var top = Enumerable.Range(1, 36).Where(n => n % 3 == 0);
+        var ordered = top.Concat(middle).Concat(bottom)    // UniformGrid fills rows first (top→bottom)
+                         .ToList();
 
         foreach (var n in ordered)
         {
-            var isRed = Core.Wheel.GetColor(n) == Core.Color.Red;
-            var bg = new Media.SolidColorBrush(isRed ? ColorFromHex("#d9534f") : ColorFromHex("#343a40"));
+            bool isRed = Core.Wheel.GetColor(n) == Core.Color.Red;
+            var bg = new Media.SolidColorBrush(isRed ? Media.Color.FromRgb(177, 44, 44)
+                                                     : Media.Color.FromRgb(34, 34, 34));
             NumberCells.Add(new CellView($"N:{n}", n.ToString(), bg));
         }
 
         // Even-money
-        OutsideEvenMoney.Add(new CellView("RB:Red", "RED", new Media.SolidColorBrush(ColorFromHex("#d9534f"))));
-        OutsideEvenMoney.Add(new CellView("RB:Black", "BLACK", new Media.SolidColorBrush(ColorFromHex("#343a40"))));
-        OutsideEvenMoney.Add(new CellView("EO:Even", "EVEN", new Media.SolidColorBrush(ColorFromHex("#2563eb"))));
-        OutsideEvenMoney.Add(new CellView("EO:Odd", "ODD", new Media.SolidColorBrush(ColorFromHex("#2563eb"))));
-        OutsideEvenMoney.Add(new CellView("LH:Low", "1–18", new Media.SolidColorBrush(ColorFromHex("#198754"))));
-        OutsideEvenMoney.Add(new CellView("LH:High", "19–36", new Media.SolidColorBrush(ColorFromHex("#198754"))));
+        OutsideEvenMoney.Add(new CellView("LH:Low", "1 - 18", FeltDark()));
+        OutsideEvenMoney.Add(new CellView("EO:Even", "Even", FeltDark()));
+        OutsideEvenMoney.Add(new CellView("RB:Red", "RED", FeltDark()));
+        OutsideEvenMoney.Add(new CellView("RB:Black", "BLACK", FeltDark()));
+        OutsideEvenMoney.Add(new CellView("EO:Odd", "Odd", FeltDark()));
+        OutsideEvenMoney.Add(new CellView("LH:High", "19 - 36", FeltDark()));
 
         // Dozens
-        OutsideDozens.Add(new CellView("DZ:1", "1st 12", new Media.SolidColorBrush(ColorFromHex("#6c757d"))));
-        OutsideDozens.Add(new CellView("DZ:2", "2nd 12", new Media.SolidColorBrush(ColorFromHex("#6c757d"))));
-        OutsideDozens.Add(new CellView("DZ:3", "3rd 12", new Media.SolidColorBrush(ColorFromHex("#6c757d"))));
+        OutsideDozens.Add(new CellView("DZ:1", "1st 12", FeltDark()));
+        OutsideDozens.Add(new CellView("DZ:2", "2nd 12", FeltDark()));
+        OutsideDozens.Add(new CellView("DZ:3", "3rd 12", FeltDark()));
 
-        // Columns
-        OutsideColumns.Add(new CellView("CL:1", "Column 1", new Media.SolidColorBrush(ColorFromHex("#6c757d"))));
-        OutsideColumns.Add(new CellView("CL:2", "Column 2", new Media.SolidColorBrush(ColorFromHex("#6c757d"))));
-        OutsideColumns.Add(new CellView("CL:3", "Column 3", new Media.SolidColorBrush(ColorFromHex("#6c757d"))));
+        // Columns (for “2 to 1”)
+        OutsideColumns.Add(new CellView("CL:3", "2 to 1", FeltDark())); // top row corresponds to column 3
+        OutsideColumns.Add(new CellView("CL:2", "2 to 1", FeltDark())); // middle column 2
+        OutsideColumns.Add(new CellView("CL:1", "2 to 1", FeltDark())); // bottom column 1
     }
 
-    static Media.Color ColorFromHex(string hex) =>
-        (Media.Color)Media.ColorConverter.ConvertFromString(hex);
+    Media.Brush FeltDark() => new Media.SolidColorBrush(Media.Color.FromRgb(15, 71, 33));
+
+    // Map chip denomination to classic colours
+    Media.Brush GetChipBrushForValue(int v) => v switch
+    {
+        1 => new Media.SolidColorBrush(Media.Colors.White),
+        2 => new Media.SolidColorBrush(Media.Color.FromRgb(25, 118, 210)), // blue
+        5 => new Media.SolidColorBrush(Media.Color.FromRgb(193, 18, 31)),  // red
+        10 => new Media.SolidColorBrush(Media.Color.FromRgb(30, 30, 30)),   // black
+        20 => new Media.SolidColorBrush(Media.Color.FromRgb(25, 135, 84)),  // green
+        50 => new Media.SolidColorBrush(Media.Color.FromRgb(111, 66, 193)), // purple
+        _ => new Media.SolidColorBrush(Media.Color.FromRgb(210, 180, 140)) // tan as fallback
+    };
 
     void Subscribe(ObservableCollection<CellView> list)
     {
@@ -172,13 +191,10 @@ public sealed class GameViewModel : INotifyPropertyChanged
             Bets.Add(new BetView(new Core.Bet(Core.BetType.Dozen, c.Stake, Dozen: dz), $"Dozen {dz}", "Dozen"));
         }
 
-        // columns
-        foreach (var c in OutsideColumns.Where(c => c.Stake > 0))
-        {
-            int cl = int.Parse(c.Key.Split(':')[1]);
-            Bets.Add(new BetView(new Core.Bet(Core.BetType.Column, c.Stake, Column: cl), $"Column {cl}", "Column"));
-        }
-
+        // columns (from right “2 to 1” or separate list)
+        // Note: we’re not directly binding these right buttons to OutsideColumns; the buttons call AddStake with CL:x
+        // so we just read stakes from any cells carrying CL:x if you decide to add visual chips there later.
+        // For now, column bets come from the command clicks.
         Raise(nameof(Bets));
     }
 
@@ -193,23 +209,30 @@ public sealed class GameViewModel : INotifyPropertyChanged
     }
 
     CellView? FindCell(string key) =>
-        ZeroCell.Concat(NumberCells).Concat(OutsideEvenMoney).Concat(OutsideDozens).Concat(OutsideColumns)
+        ZeroCell.Concat(NumberCells).Concat(OutsideEvenMoney)
+                .Concat(OutsideDozens).Concat(OutsideColumns)
                 .FirstOrDefault(c => c.Key == key);
 
     // Compile once at spin time
     ObservableCollection<BetView> CompileBetsFromCells()
     {
+        // Ensure column/2to1 and dozens etc are reflected
         RefreshBets();
         return Bets;
     }
 }
 
-// ===== Cell and helpers =====
+// ===== Helper view models =====
+
+// A cell on the table
 public sealed class CellView : INotifyPropertyChanged
 {
-    public string Key { get; }
-    public string Label { get; }
-    public Media.Brush Background { get; }
+    public string Key { get; }          // e.g., "N:17", "EO:Even", "RB:Red", "DZ:1", "CL:3"
+    public string Label { get; }        // UI label
+    public Media.Brush Background { get; } // cell background (felt/red/black)
+
+    Media.Brush _chipBrush = new Media.SolidColorBrush(Media.Colors.White);
+    public Media.Brush ChipBrush { get => _chipBrush; set { _chipBrush = value; PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ChipBrush))); } }
 
     int _stake;
     public int Stake { get => _stake; set { _stake = value; PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Stake))); } }
@@ -222,6 +245,7 @@ public sealed class CellView : INotifyPropertyChanged
     public event PropertyChangedEventHandler? PropertyChanged;
 }
 
+// A single compiled bet row for the summary list
 public sealed class BetView
 {
     public Core.Bet Bet { get; }
@@ -235,6 +259,26 @@ public sealed class BetView
     }
 }
 
+// Chip preview used in the picker (only for visual)
+public sealed class ChipPreview
+{
+    public int Value { get; set; }
+    public int Stake => Value;
+    public Media.Brush ChipBrush => Value switch
+    {
+        1 => new Media.SolidColorBrush(Media.Colors.White),
+        2 => new Media.SolidColorBrush(Media.Color.FromRgb(25, 118, 210)),
+        5 => new Media.SolidColorBrush(Media.Color.FromRgb(193, 18, 31)),
+        10 => new Media.SolidColorBrush(Media.Color.FromRgb(30, 30, 30)),
+        20 => new Media.SolidColorBrush(Media.Color.FromRgb(25, 135, 84)),
+        50 => new Media.SolidColorBrush(Media.Color.FromRgb(111, 66, 193)),
+        _ => new Media.SolidColorBrush(Media.Color.FromRgb(210, 180, 140))
+    };
+    public ChipPreview() { }
+    public ChipPreview(int value) { Value = value; }
+}
+
+// Simple ICommand
 public sealed class RelayCommand : ICommand
 {
     readonly Action<object?> _exec; readonly Predicate<object?>? _can;
