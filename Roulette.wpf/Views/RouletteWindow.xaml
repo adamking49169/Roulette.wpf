@@ -4,7 +4,7 @@
     xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
     xmlns:viewModels="clr-namespace:Roulette.Wpf.ViewModels"
     xmlns:conv="clr-namespace:Roulette.Wpf.Converters"
-    Title="Roulette" Width="1180" Height="760" WindowStartupLocation="CenterScreen">
+    Title="Roulette" Width="1180" Height="820" WindowStartupLocation="CenterScreen">
 
     <!-- ViewModel -->
     <controls:MetroWindow.DataContext>
@@ -38,13 +38,11 @@
         </Style>
 
         <!-- ===== CHIP (casino-style) ===== -->
-        <!-- Expects DataContext with Stake (int) and ChipBrush (Brush) -->
         <DataTemplate x:Key="ChipTemplate">
             <Grid Width="34" Height="34">
-                <Ellipse Fill="{Binding ChipBrush}" Stroke="White" StrokeThickness="4" StrokeDashArray="1,2" />
+                <Ellipse Fill="{Binding ChipBrush}" Stroke="White" StrokeThickness="4" StrokeDashArray="1,2"/>
                 <Ellipse Width="22" Height="22" Fill="White" Opacity="0.92"/>
-                <TextBlock Text="{Binding Stake}"
-                           FontWeight="Bold" FontSize="12"
+                <TextBlock Text="{Binding Stake}" FontWeight="Bold" FontSize="12"
                            HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="#222"/>
                 <Grid.Effect>
                     <DropShadowEffect BlurRadius="6" ShadowDepth="0" Color="#55000000"/>
@@ -52,8 +50,7 @@
             </Grid>
         </DataTemplate>
 
-        <!-- ===== RECTANGULAR CELL (numbers & outside) ===== -->
-        <!-- Bindings: Key, Label, Background, Stake -->
+        <!-- ===== NUMBER / OUTSIDE CELL ===== -->
         <DataTemplate x:Key="RectCellTemplate">
             <Button Command="{Binding DataContext.AddStakeCommand, RelativeSource={RelativeSource AncestorType=Window}}"
                     CommandParameter="{Binding Key}"
@@ -64,7 +61,6 @@
                     <TextBlock Text="{Binding Label}" Foreground="White"
                                FontSize="18" FontWeight="SemiBold"
                                HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                    <!-- Chip badge -->
                     <ContentPresenter ContentTemplate="{StaticResource ChipTemplate}"
                                       HorizontalAlignment="Right" VerticalAlignment="Top" Margin="4"
                                       Visibility="{Binding Stake, Converter={StaticResource IntToVis}}"/>
@@ -72,7 +68,7 @@
             </Button>
         </DataTemplate>
 
-        <!-- ===== TALL ZERO CELL (same rules, taller) ===== -->
+        <!-- ===== TALL ZERO CELL ===== -->
         <DataTemplate x:Key="ZeroCellTemplate">
             <Button Command="{Binding DataContext.AddStakeCommand, RelativeSource={RelativeSource AncestorType=Window}}"
                     CommandParameter="{Binding Key}"
@@ -83,7 +79,6 @@
                     <TextBlock Text="{Binding Label}" Foreground="White"
                                FontSize="26" FontWeight="Bold"
                                HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                    <!-- Chip only when stake > 0 -->
                     <ContentPresenter ContentTemplate="{StaticResource ChipTemplate}"
                                       HorizontalAlignment="Right" VerticalAlignment="Top" Margin="4"
                                       Visibility="{Binding Stake, Converter={StaticResource IntToVis}}"/>
@@ -137,7 +132,7 @@
                         <!-- 2 to 1 buttons -->
                     </Grid.ColumnDefinitions>
 
-                    <!-- Tall 0 at left via ItemsControl so bindings behave exactly like other cells -->
+                    <!-- Tall 0 -->
                     <ItemsControl Grid.Column="0" ItemsSource="{Binding ZeroCell}"
                                   ItemTemplate="{StaticResource ZeroCellTemplate}"/>
 
@@ -151,7 +146,7 @@
                         </ItemsControl.ItemsPanel>
                     </ItemsControl>
 
-                    <!-- Right 2 to 1 (columns) -->
+                    <!-- Right 2 to 1 -->
                     <Grid Grid.Column="2" Margin="2">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="*" />
@@ -163,12 +158,10 @@
                                 Background="{DynamicResource FeltDark}" Foreground="White"
                                 BorderBrush="{DynamicResource FeltBorder}" BorderThickness="2"
                                 Margin="2" Height="64" Cursor="Hand" Content="2 to 1"/>
-
                         <Button Grid.Row="1" Command="{Binding AddStakeCommand}" CommandParameter="CL:2"
                                 Background="{DynamicResource FeltDark}" Foreground="White"
                                 BorderBrush="{DynamicResource FeltBorder}" BorderThickness="2"
                                 Margin="2" Height="64" Cursor="Hand" Content="2 to 1"/>
-
                         <Button Grid.Row="0" Command="{Binding AddStakeCommand}" CommandParameter="CL:3"
                                 Background="{DynamicResource FeltDark}" Foreground="White"
                                 BorderBrush="{DynamicResource FeltBorder}" BorderThickness="2"
@@ -219,36 +212,35 @@
                             BorderBrush="{DynamicResource FeltBorder}" BorderThickness="2"
                             Margin="2" Height="52" Cursor="Hand" Content="Even"/>
 
-                    <!-- Red diamond -->
+                    <!-- Red diamond (centered, fills more) -->
                     <Button Grid.Column="2" Command="{Binding AddStakeCommand}" CommandParameter="RB:Red"
                             Background="{DynamicResource FeltDark}" BorderBrush="{DynamicResource FeltBorder}"
                             BorderThickness="2" Margin="2" Height="52" Cursor="Hand">
                         <Grid>
-                            <Rectangle Width="28" Height="28" Fill="#b12c2c" Stroke="White" StrokeThickness="2"
-                                        HorizontalAlignment="Center" VerticalAlignment="Center"
-                                        RenderTransformOrigin="0.5,0.5">
-                                <Rectangle.RenderTransform>
-                                    <RotateTransform Angle="45"/>
-                                </Rectangle.RenderTransform>
-                            </Rectangle>
+                            <Viewbox Stretch="Uniform" Width="72" Height="52"
+                                     HorizontalAlignment="Center" VerticalAlignment="Center">
+                                <Canvas Width="80" Height="52">
+                                    <Polygon Points="20,26 40,13 60,26 40,39"
+                                             Fill="#b12c2c" Stroke="White" StrokeThickness="3"/>
+                                </Canvas>
+                            </Viewbox>
                         </Grid>
                     </Button>
 
-                    <!-- Black diamond -->
+                    <!-- Black diamond (centered, fills more) -->
                     <Button Grid.Column="3" Command="{Binding AddStakeCommand}" CommandParameter="RB:Black"
                             Background="{DynamicResource FeltDark}" BorderBrush="{DynamicResource FeltBorder}"
                             BorderThickness="2" Margin="2" Height="52" Cursor="Hand">
                         <Grid>
-                            <Rectangle Width="28" Height="28" Fill="#222" Stroke="White" StrokeThickness="2"
-                                        HorizontalAlignment="Center" VerticalAlignment="Center"
-                                        RenderTransformOrigin="0.5,0.5">
-                                <Rectangle.RenderTransform>
-                                    <RotateTransform Angle="45"/>
-                                </Rectangle.RenderTransform>
-                            </Rectangle>
+                            <Viewbox Stretch="Uniform" Width="72" Height="52"
+                                     HorizontalAlignment="Center" VerticalAlignment="Center">
+                                <Canvas Width="80" Height="52">
+                                    <Polygon Points="20,26 40,13 60,26 40,39"
+                                             Fill="#222" Stroke="White" StrokeThickness="3"/>
+                                </Canvas>
+                            </Viewbox>
                         </Grid>
                     </Button>
-
 
                     <Button Grid.Column="4" Command="{Binding AddStakeCommand}" CommandParameter="EO:Odd"
                             Background="{DynamicResource FeltDark}" Foreground="White"
@@ -263,12 +255,41 @@
             </Grid>
         </Border>
 
-        <!-- ===== RIGHT: BETS + RESULT + CHIP PICKER ===== -->
+        <!-- ===== RIGHT COLUMN: WHEEL + BETS/RESULT + CHIPS ===== -->
         <StackPanel Grid.Row="1" Grid.Column="2">
+
+            <!-- ===== RIGHT: WHEEL (animated) ===== -->
+            <Border Style="{StaticResource Card}">
+                <Grid>
+                    <!-- Wheel image with a named RotateTransform we animate -->
+                    <Grid>
+                        <Image Source="Assets/wheel.png"
+                         Stretch="Uniform"
+                         RenderOptions.BitmapScalingMode="HighQuality"
+                         HorizontalAlignment="Center"
+                         VerticalAlignment="Center"
+                         Width="360" Height="360">
+                            <Image.RenderTransform>
+                                <RotateTransform x:Name="WheelRotate" Angle="0" CenterX="180" CenterY="180"/>
+                            </Image.RenderTransform>
+                        </Image>
+
+                        <!-- Fixed marker at the top (ball “window”) -->
+                        <Grid HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,6,0,0">
+                            <Polygon Points="0,0 12,0 6,10" Fill="White" Stroke="#444" StrokeThickness="1"/>
+                        </Grid>
+
+                        <!-- Subtle inner shading -->
+                        <Ellipse Width="360" Height="360" Stroke="#22000000" StrokeThickness="8" />
+                    </Grid>
+                </Grid>
+            </Border>
+
+            <!-- ===== Bets summary ===== -->
             <Border Style="{StaticResource Card}">
                 <StackPanel>
                     <TextBlock Text="Current Bets" FontWeight="SemiBold" FontSize="14"/>
-                    <ListView ItemsSource="{Binding Bets}" Margin="0,8,0,0" Height="300">
+                    <ListView ItemsSource="{Binding Bets}" Margin="0,8,0,0" Height="220">
                         <ListView.View>
                             <GridView>
                                 <GridViewColumn Header="Type"   Width="140" DisplayMemberBinding="{Binding Type}"/>
@@ -277,9 +298,45 @@
                             </GridView>
                         </ListView.View>
                     </ListView>
+                </StackPanel>
+            </Border>
 
-                    <!-- Chip picker -->
-                    <TextBlock Text="Chips" Margin="0,10,0,4" FontWeight="SemiBold"/>
+            <!-- ===== Result + Spin ===== -->
+            <Border Style="{StaticResource Card}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition Width="200"/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel>
+                        <TextBlock Text="Result" FontWeight="SemiBold" FontSize="14"/>
+                        <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                            <Border Width="72" Height="72" CornerRadius="36"
+                                    Background="{Binding LastSpinColor, Converter={StaticResource SpinColorToBrushConverter}}">
+                                <TextBlock Text="{Binding LastSpinNumber}"
+                                           VerticalAlignment="Center" HorizontalAlignment="Center"
+                                           FontSize="20" FontWeight="Bold" Foreground="White"/>
+                            </Border>
+                            <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
+                                <TextBlock Text="{Binding LastSpinLabel}" FontSize="14"/>
+                                <TextBlock Text="{Binding LastNetResult, StringFormat=Net: {0:+#;-#;0}}"
+                                           FontSize="16" FontWeight="SemiBold"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Center">
+                        <Button Content="Spin" Width="160" Height="44" Command="{Binding SpinCommand}"/>
+                        <Button Content="Clear Bets" Width="160" Margin="0,8,0,0" Command="{Binding ClearBetsCommand}"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- ===== Chip picker ===== -->
+            <Border Style="{StaticResource Card}">
+                <StackPanel>
+                    <TextBlock Text="Chips" Margin="0,0,0,6" FontWeight="SemiBold"/>
                     <ListBox ItemsSource="{Binding ChipValues}"
                              SelectedItem="{Binding SelectedChipValue, Mode=TwoWay}"
                              BorderThickness="0" Background="Transparent">
@@ -325,36 +382,6 @@
                 </StackPanel>
             </Border>
 
-            <Border Style="{StaticResource Card}">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition/>
-                        <ColumnDefinition Width="200"/>
-                    </Grid.ColumnDefinitions>
-
-                    <StackPanel>
-                        <TextBlock Text="Result" FontWeight="SemiBold" FontSize="14"/>
-                        <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
-                            <Border Width="72" Height="72" CornerRadius="36"
-                                    Background="{Binding LastSpinColor, Converter={StaticResource SpinColorToBrushConverter}}">
-                                <TextBlock Text="{Binding LastSpinNumber}"
-                                           VerticalAlignment="Center" HorizontalAlignment="Center"
-                                           FontSize="20" FontWeight="Bold" Foreground="White"/>
-                            </Border>
-                            <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
-                                <TextBlock Text="{Binding LastSpinLabel}" FontSize="14"/>
-                                <TextBlock Text="{Binding LastNetResult, StringFormat=Net: {0:+#;-#;0}}"
-                                           FontSize="16" FontWeight="SemiBold"/>
-                            </StackPanel>
-                        </StackPanel>
-                    </StackPanel>
-
-                    <StackPanel Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Center">
-                        <Button Content="Spin" Width="160" Height="44" Command="{Binding SpinCommand}"/>
-                        <Button Content="Clear Bets" Width="160" Margin="0,8,0,0" Command="{Binding ClearBetsCommand}"/>
-                    </StackPanel>
-                </Grid>
-            </Border>
         </StackPanel>
     </Grid>
 </controls:MetroWindow>

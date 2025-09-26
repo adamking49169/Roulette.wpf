@@ -74,12 +74,29 @@ public sealed class GameViewModel : INotifyPropertyChanged
 
         SpinCommand = new RelayCommand(_ =>
         {
-            var compiled = CompileBetsFromCells();
+            // Freeze current bets into a list so results match what the user sees
+            RefreshBets();
             var spin = Core.Wheel.Spin();
-            LastSpinNumber = spin.Number;
-            LastSpinColor = spin.Color;
-            LastNetResult = Core.Payouts.EvaluateMany(compiled.Select(bv => bv.Bet), spin);
+            _pendingSpin = spin;               // store so we can commit after the animation
+            SpinRequested?.Invoke(spin.Number); // tell the view to animate to this number
         });
+
+    }
+    // Visual spin plumbing
+    public event Action<int>? SpinRequested;  // number to land on
+    private Core.SpinResult? _pendingSpin;
+    public Core.SpinResult? PendingSpin => _pendingSpin;
+
+    // Called by the view when animation completes
+    public void CommitPendingSpin()
+    {
+        if (_pendingSpin is Core.SpinResult s)
+        {
+            LastSpinNumber = s.Number;
+            LastSpinColor = s.Color;
+            LastNetResult = Core.Payouts.EvaluateMany(Bets.Select(b => b.Bet), s);
+            _pendingSpin = null;
+        }
     }
 
     void BuildCells()

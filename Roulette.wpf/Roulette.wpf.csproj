@@ -5,9 +5,17 @@
 		<UseWPF>true</UseWPF>
 	</PropertyGroup>
 	<ItemGroup>
+	  <None Remove="Assets\wheel.png" />
+	</ItemGroup>
+	<ItemGroup>
 		<PackageReference Include="MahApps.Metro" Version="2.*" />
 	</ItemGroup>
 	<ItemGroup>
 	  <ProjectReference Include="..\Roulette.Core\Roulette.Core.csproj" />
+	</ItemGroup>
+	<ItemGroup>
+	  <Resource Include="Assets\wheel.png">
+	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+	  </Resource>
 	</ItemGroup>
 </Project>
