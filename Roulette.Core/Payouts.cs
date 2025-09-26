@@ -6,6 +6,7 @@ namespace Roulette.Core;
 
 public static class Payouts
 {
+    // Returns net profit (winnings minus stake)
     public static int Evaluate(Bet bet, SpinResult spin) => bet.Type switch
     {
         BetType.Straight => (bet.Number == spin.Number) ? bet.Stake * 35 : -bet.Stake,
