@@ -4,7 +4,7 @@
     xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
     xmlns:viewModels="clr-namespace:Roulette.Wpf.ViewModels"
     xmlns:conv="clr-namespace:Roulette.Wpf.Converters"
-    Title="Roulette" Width="980" Height="640" WindowStartupLocation="CenterScreen">
+    Title="Roulette" Width="1180" Height="760" WindowStartupLocation="CenterScreen">
 
     <!-- ViewModel -->
     <controls:MetroWindow.DataContext>
@@ -13,24 +13,78 @@
 
     <!-- Resources -->
     <controls:MetroWindow.Resources>
+        <!-- Brushes -->
+        <SolidColorBrush x:Key="Felt" Color="#175a2b"/>
+        <SolidColorBrush x:Key="FeltDark" Color="#0f4721"/>
+        <SolidColorBrush x:Key="FeltBorder" Color="#E6E6E6"/>
+
+        <!-- Number cell background helpers (red/black/green) -->
+        <SolidColorBrush x:Key="NumRed" Color="#b12c2c"/>
+        <SolidColorBrush x:Key="NumBlack" Color="#222222"/>
+        <SolidColorBrush x:Key="NumGreen" Color="#0e7a3a"/>
+
         <conv:SpinColorToBrushConverter x:Key="SpinColorToBrushConverter"/>
         <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+
+        <!-- Card wrapper used on right -->
         <Style x:Key="Card" TargetType="Border">
-            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="CornerRadius" Value="10"/>
             <Setter Property="Background" Value="White"/>
             <Setter Property="BorderBrush" Value="#DDD"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="Padding" Value="12"/>
             <Setter Property="Margin" Value="8"/>
         </Style>
+
+        <!-- ====== CHIP VISUAL (casino-style) ====== -->
+        <!-- Bindings used: Stake (int), ChipBrush (Brush) -->
+        <DataTemplate x:Key="ChipTemplate">
+            <Grid Width="34" Height="34">
+                <!-- Edge stripes via StrokeDashArray -->
+                <Ellipse Fill="{Binding ChipBrush}" Stroke="White" StrokeThickness="4"
+                         StrokeDashArray="1,2" />
+                <!-- Inner disk -->
+                <Ellipse Width="22" Height="22" Fill="White" Opacity="0.92"/>
+                <TextBlock Text="{Binding Stake}"
+                           FontWeight="Bold" FontSize="12"
+                           HorizontalAlignment="Center" VerticalAlignment="Center"
+                           Foreground="#222"/>
+                <Grid.Effect>
+                    <DropShadowEffect BlurRadius="6" ShadowDepth="0" Color="#55000000"/>
+                </Grid.Effect>
+            </Grid>
+        </DataTemplate>
+
+        <!-- ====== NUMBER/OUTSIDE CELL TEMPLATE ====== -->
+        <!-- For number buttons and outside bet buttons -->
+        <!-- Bindings: Key, Label, Background, Stake, ChipBrush -->
+        <DataTemplate x:Key="RectCellTemplate">
+            <Button Command="{Binding DataContext.AddStakeCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                    CommandParameter="{Binding Key}"
+                    Background="{Binding Background}"
+                    BorderBrush="{DynamicResource FeltBorder}" BorderThickness="2"
+                    Margin="2" Padding="0" Height="64" Cursor="Hand">
+                <Grid>
+                    <TextBlock Text="{Binding Label}" Foreground="White"
+                               FontSize="18" FontWeight="SemiBold"
+                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+
+                    <!-- Chip shown when Stake > 0 -->
+                    <ContentPresenter ContentTemplate="{StaticResource ChipTemplate}"
+                                      HorizontalAlignment="Right" VerticalAlignment="Top" Margin="4"
+                                      Visibility="{Binding Stake, Converter={StaticResource BoolToVis}}"/>
+                </Grid>
+            </Button>
+        </DataTemplate>
+
     </controls:MetroWindow.Resources>
 
-    <!-- Layout -->
+    <!-- ===== LAYOUT ===== -->
     <Grid Background="#F4F6F8">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="360"/>
-            <ColumnDefinition Width="10"/>
-            <ColumnDefinition/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="12"/>
+            <ColumnDefinition Width="430"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -40,107 +94,212 @@
         <TextBlock Grid.ColumnSpan="3"
                    Text="European Roulette"
                    FontSize="20" FontWeight="SemiBold"
-                   Margin="12,8,12,0"/>
+                   Margin="12,10,12,0"/>
 
-        <!-- ===== Left: Bet panel ===== -->
-        <Border Grid.Row="1" Grid.Column="0" Style="{StaticResource Card}">
-            <StackPanel>
-                <TextBlock Text="Add Bet" FontWeight="SemiBold" FontSize="14" Margin="0,0,0,8"/>
+        <!-- ===== LEFT: REALISTIC TABLE ===== -->
+        <Border Grid.Row="1" Grid.Column="0"
+                Background="{DynamicResource Felt}" CornerRadius="14"
+                BorderBrush="{DynamicResource FeltBorder}" BorderThickness="2" Padding="10" Margin="8">
+            <Grid>
+                <!-- Table main grid: 3 number rows + 0 column + right 2to1 + outside rows -->
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <!-- numbers block -->
+                    <RowDefinition Height="10"/>
+                    <!-- gap -->
+                    <RowDefinition Height="Auto"/>
+                    <!-- dozens -->
+                    <RowDefinition Height="6"/>
+                    <RowDefinition Height="Auto"/>
+                    <!-- even money -->
+                </Grid.RowDefinitions>
 
-                <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
-                    <TextBlock Text="Type" Width="90" VerticalAlignment="Center"/>
-                    <ComboBox Width="220"
-                              ItemsSource="{Binding BetTypes}"
-                              SelectedItem="{Binding SelectedBetType}"/>
-                </StackPanel>
+                <!-- ==== Numbers area ==== -->
+                <Grid Grid.Row="0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="92"/>
+                        <!-- zero -->
+                        <ColumnDefinition Width="*" />
+                        <!-- 3x12 numbers -->
+                        <ColumnDefinition Width="120"/>
+                        <!-- 2 to 1 buttons -->
+                    </Grid.ColumnDefinitions>
 
-                <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
-                    <TextBlock Text="Stake" Width="90" VerticalAlignment="Center"/>
-                    <TextBox Width="220"
-                             Text="{Binding Stake, UpdateSourceTrigger=PropertyChanged}"/>
-                </StackPanel>
+                    <!-- Left tall 0 -->
+                    <Border Grid.Column="0" CornerRadius="8"
+                            Background="{DynamicResource NumGreen}"
+                            BorderBrush="{DynamicResource FeltBorder}" BorderThickness="2" Margin="2">
+                        <Button Command="{Binding AddStakeCommand}" CommandParameter="N:0"
+                                Background="{x:Null}" BorderThickness="0" Cursor="Hand">
+                            <Grid>
+                                <TextBlock Text="0" Foreground="White" FontSize="26" FontWeight="Bold"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                <ContentPresenter ContentTemplate="{StaticResource ChipTemplate}"
+                                                  HorizontalAlignment="Right" VerticalAlignment="Top" Margin="4"
+                                                  Visibility="{Binding ZeroCell[0].Stake, Converter={StaticResource BoolToVis}}"
+                                                  Content="{Binding ZeroCell[0]}"/>
+                            </Grid>
+                        </Button>
+                    </Border>
 
-                <!-- Conditional fields -->
-                <StackPanel Orientation="Horizontal" Margin="0,0,0,6"
-                            Visibility="{Binding ShowStraight, Converter={StaticResource BoolToVis}}">
-                    <TextBlock Text="Number" Width="90" VerticalAlignment="Center"/>
-                    <ComboBox Width="220"
-                              ItemsSource="{Binding Numbers}"
-                              SelectedItem="{Binding StraightNumber}"/>
-                </StackPanel>
+                    <!-- 3 × 12 number grid -->
+                    <ItemsControl Grid.Column="1" ItemsSource="{Binding NumberCells}"
+                                  ItemTemplate="{StaticResource RectCellTemplate}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <UniformGrid Rows="3" Columns="12"/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                    </ItemsControl>
 
-                <StackPanel Orientation="Horizontal" Margin="0,0,0,6"
-                            Visibility="{Binding ShowRB, Converter={StaticResource BoolToVis}}">
-                    <TextBlock Text="Red/Black" Width="90" VerticalAlignment="Center"/>
-                    <ComboBox Width="220"
-                              ItemsSource="{Binding RBOptions}"
-                              SelectedItem="{Binding SelectedRB}"/>
-                </StackPanel>
+                    <!-- Right 2 to 1 (columns 1/2/3) -->
+                    <Grid Grid.Column="2" Margin="2">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
 
-                <StackPanel Orientation="Horizontal" Margin="0,0,0,6"
-                            Visibility="{Binding ShowEO, Converter={StaticResource BoolToVis}}">
-                    <TextBlock Text="Even/Odd" Width="90" VerticalAlignment="Center"/>
-                    <ComboBox Width="220"
-                              ItemsSource="{Binding EOOptions}"
-                              SelectedItem="{Binding SelectedEO}"/>
-                </StackPanel>
+                        <Button Grid.Row="2" Command="{Binding AddStakeCommand}" CommandParameter="CL:1"
+                                Background="{DynamicResource FeltDark}" Foreground="White"
+                                BorderBrush="{DynamicResource FeltBorder}" BorderThickness="2"
+                                Margin="2" Height="64" Cursor="Hand" Content="2 to 1"/>
 
-                <StackPanel Orientation="Horizontal" Margin="0,0,0,6"
-                            Visibility="{Binding ShowLH, Converter={StaticResource BoolToVis}}">
-                    <TextBlock Text="Low/High" Width="90" VerticalAlignment="Center"/>
-                    <ComboBox Width="220"
-                              ItemsSource="{Binding LHOptions}"
-                              SelectedItem="{Binding SelectedLH}"/>
-                </StackPanel>
+                        <Button Grid.Row="1" Command="{Binding AddStakeCommand}" CommandParameter="CL:2"
+                                Background="{DynamicResource FeltDark}" Foreground="White"
+                                BorderBrush="{DynamicResource FeltBorder}" BorderThickness="2"
+                                Margin="2" Height="64" Cursor="Hand" Content="2 to 1"/>
 
-                <StackPanel Orientation="Horizontal" Margin="0,0,0,6"
-                            Visibility="{Binding ShowDozen, Converter={StaticResource BoolToVis}}">
-                    <TextBlock Text="Dozen" Width="90" VerticalAlignment="Center"/>
-                    <ComboBox Width="220"
-                              ItemsSource="{Binding Dozens}"
-                              SelectedItem="{Binding SelectedDozen}"/>
-                </StackPanel>
+                        <Button Grid.Row="0" Command="{Binding AddStakeCommand}" CommandParameter="CL:3"
+                                Background="{DynamicResource FeltDark}" Foreground="White"
+                                BorderBrush="{DynamicResource FeltBorder}" BorderThickness="2"
+                                Margin="2" Height="64" Cursor="Hand" Content="2 to 1"/>
+                    </Grid>
+                </Grid>
 
-                <StackPanel Orientation="Horizontal" Margin="0,0,0,6"
-                            Visibility="{Binding ShowColumn, Converter={StaticResource BoolToVis}}">
-                    <TextBlock Text="Column" Width="90" VerticalAlignment="Center"/>
-                    <ComboBox Width="220"
-                              ItemsSource="{Binding Columns}"
-                              SelectedItem="{Binding SelectedColumn}"/>
-                </StackPanel>
+                <!-- ==== Dozens ==== -->
+                <Grid Grid.Row="2">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
 
-                <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
-                    <Button Content="Add Bet" Width="120" Margin="0,0,8,0"
-                            IsEnabled="{Binding CanAddBet}"
-                            Command="{Binding AddBetCommand}"/>
-                    <Button Content="Clear" Width="90"
-                            Command="{Binding ClearBetsCommand}"/>
-                </StackPanel>
-            </StackPanel>
+                    <Button Grid.Column="0" Command="{Binding AddStakeCommand}" CommandParameter="DZ:1"
+                            Background="{DynamicResource FeltDark}" Foreground="White"
+                            BorderBrush="{DynamicResource FeltBorder}" BorderThickness="2"
+                            Margin="2" Height="52" Cursor="Hand" Content="1st 12"/>
+                    <Button Grid.Column="1" Command="{Binding AddStakeCommand}" CommandParameter="DZ:2"
+                            Background="{DynamicResource FeltDark}" Foreground="White"
+                            BorderBrush="{DynamicResource FeltBorder}" BorderThickness="2"
+                            Margin="2" Height="52" Cursor="Hand" Content="2nd 12"/>
+                    <Button Grid.Column="2" Command="{Binding AddStakeCommand}" CommandParameter="DZ:3"
+                            Background="{DynamicResource FeltDark}" Foreground="White"
+                            BorderBrush="{DynamicResource FeltBorder}" BorderThickness="2"
+                            Margin="2" Height="52" Cursor="Hand" Content="3rd 12"/>
+                </Grid>
+
+                <!-- ==== Even-money row ==== -->
+                <Grid Grid.Row="4">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <Button Grid.Column="0" Command="{Binding AddStakeCommand}" CommandParameter="LH:Low"
+                            Background="{DynamicResource FeltDark}" Foreground="White"
+                            BorderBrush="{DynamicResource FeltBorder}" BorderThickness="2"
+                            Margin="2" Height="52" Cursor="Hand" Content="1 - 18"/>
+
+                    <Button Grid.Column="1" Command="{Binding AddStakeCommand}" CommandParameter="EO:Even"
+                            Background="{DynamicResource FeltDark}" Foreground="White"
+                            BorderBrush="{DynamicResource FeltBorder}" BorderThickness="2"
+                            Margin="2" Height="52" Cursor="Hand" Content="Even"/>
+
+                    <!-- Red diamond -->
+                    <Button Grid.Column="2" Command="{Binding AddStakeCommand}" CommandParameter="RB:Red"
+                            Background="{DynamicResource FeltDark}" BorderBrush="{DynamicResource FeltBorder}"
+                            BorderThickness="2" Margin="2" Height="52" Cursor="Hand">
+                        <Grid>
+                            <Polygon Points="20,26 40,13 60,26 40,39" Fill="#b12c2c" Stroke="White" StrokeThickness="2"/>
+                        </Grid>
+                    </Button>
+
+                    <!-- Black diamond -->
+                    <Button Grid.Column="3" Command="{Binding AddStakeCommand}" CommandParameter="RB:Black"
+                            Background="{DynamicResource FeltDark}" BorderBrush="{DynamicResource FeltBorder}"
+                            BorderThickness="2" Margin="2" Height="52" Cursor="Hand">
+                        <Grid>
+                            <Polygon Points="20,26 40,13 60,26 40,39" Fill="#222" Stroke="White" StrokeThickness="2"/>
+                        </Grid>
+                    </Button>
+
+                    <Button Grid.Column="4" Command="{Binding AddStakeCommand}" CommandParameter="EO:Odd"
+                            Background="{DynamicResource FeltDark}" Foreground="White"
+                            BorderBrush="{DynamicResource FeltBorder}" BorderThickness="2"
+                            Margin="2" Height="52" Cursor="Hand" Content="Odd"/>
+
+                    <Button Grid.Column="5" Command="{Binding AddStakeCommand}" CommandParameter="LH:High"
+                            Background="{DynamicResource FeltDark}" Foreground="White"
+                            BorderBrush="{DynamicResource FeltBorder}" BorderThickness="2"
+                            Margin="2" Height="52" Cursor="Hand" Content="19 - 36"/>
+                </Grid>
+            </Grid>
         </Border>
 
-        <!-- ===== Right: Bet list & Spin ===== -->
+        <!-- ===== RIGHT: BETS + RESULT ===== -->
         <StackPanel Grid.Row="1" Grid.Column="2">
-            <!-- Bet list -->
             <Border Style="{StaticResource Card}">
                 <StackPanel>
                     <TextBlock Text="Current Bets" FontWeight="SemiBold" FontSize="14"/>
-                    <ListView ItemsSource="{Binding Bets}"
-                              Margin="0,8,0,0"
-                              Height="220"
-                              SelectedItem="{Binding SelectedBet}">
+                    <ListView ItemsSource="{Binding Bets}" Margin="0,8,0,0" Height="300">
                         <ListView.View>
                             <GridView>
-                                <GridViewColumn Header="Type"   Width="120" DisplayMemberBinding="{Binding Type}"/>
-                                <GridViewColumn Header="Details" Width="240" DisplayMemberBinding="{Binding Description}"/>
+                                <GridViewColumn Header="Type"   Width="140" DisplayMemberBinding="{Binding Type}"/>
+                                <GridViewColumn Header="Details" Width="220" DisplayMemberBinding="{Binding Description}"/>
                                 <GridViewColumn Header="Stake"   Width="80"  DisplayMemberBinding="{Binding Stake}"/>
                             </GridView>
                         </ListView.View>
                     </ListView>
+
+                    <!-- Chip picker -->
+                    <TextBlock Text="Chips" Margin="0,10,0,4" FontWeight="SemiBold"/>
+                    <ListBox ItemsSource="{Binding ChipValues}" SelectedItem="{Binding SelectedChipValue, Mode=TwoWay}"
+                             BorderThickness="0" Background="Transparent">
+                        <ListBox.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel/>
+                            </ItemsPanelTemplate>
+                        </ListBox.ItemsPanel>
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <!-- Visual chip in picker -->
+                                <Grid Margin="0,0,8,8">
+                                    <Grid.DataContext>
+                                        <viewModels:ChipPreview Value="{Binding}" />
+                                    </Grid.DataContext>
+                                    <ContentPresenter ContentTemplate="{StaticResource ChipTemplate}"/>
+                                </Grid>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                        <ListBox.ItemContainerStyle>
+                            <Style TargetType="ListBoxItem">
+                                <Setter Property="Padding" Value="0"/>
+                                <Setter Property="BorderThickness" Value="0"/>
+                                <Setter Property="Background" Value="Transparent"/>
+                                <Setter Property="HorizontalContentAlignment" Value="Center"/>
+                                <Setter Property="Cursor" Value="Hand"/>
+                                <Setter Property="ToolTip" Value="{Binding}"/>
+                            </Style>
+                        </ListBox.ItemContainerStyle>
+                    </ListBox>
                 </StackPanel>
             </Border>
 
-            <!-- Result + Spin -->
             <Border Style="{StaticResource Card}">
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -166,8 +325,8 @@
                     </StackPanel>
 
                     <StackPanel Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Center">
-                        <Button Content="Spin" Width="160" Height="44"
-                                Command="{Binding SpinCommand}"/>
+                        <Button Content="Spin" Width="160" Height="44" Command="{Binding SpinCommand}"/>
+                        <Button Content="Clear Bets" Width="160" Margin="0,8,0,0" Command="{Binding ClearBetsCommand}"/>
                     </StackPanel>
                 </Grid>
             </Border>

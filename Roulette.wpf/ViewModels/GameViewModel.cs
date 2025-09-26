@@ -1,138 +1,241 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
-using Roulette.Core;
+using Media = System.Windows.Media;          // alias for WPF media types
+using Core = Roulette.Core;                  // alias for your core namespace
 
 namespace Roulette.Wpf.ViewModels;
 
-public  class GameViewModel : INotifyPropertyChanged
+public sealed class GameViewModel : INotifyPropertyChanged
 {
     public event PropertyChangedEventHandler? PropertyChanged;
     void Raise([CallerMemberName] string? n = null) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(n));
 
-    // Options
-    public ObservableCollection<BetType> BetTypes { get; } = new(Enum.GetValues<BetType>());
-    public ObservableCollection<int> Numbers { get; } = new(Enumerable.Range(0, 37));
-    public ObservableCollection<RedBlack> RBOptions { get; } = new(Enum.GetValues<RedBlack>());
-    public ObservableCollection<EvenOdd> EOOptions { get; } = new(Enum.GetValues<EvenOdd>());
-    public ObservableCollection<LowHigh> LHOptions { get; } = new(Enum.GetValues<LowHigh>());
-    public ObservableCollection<int> Dozens { get; } = new(new[] { 1, 2, 3 });
-    public ObservableCollection<int> Columns { get; } = new(new[] { 1, 2, 3 });
+    // ===== Chips =====
+    public ObservableCollection<int> ChipValues { get; } = new(new[] { 1, 2, 5, 10, 20, 50 });
+    int _selectedChipValue = 5;
+    public int SelectedChipValue { get => _selectedChipValue; set { _selectedChipValue = value; Raise(); } }
 
-    // Composer state
-    BetType _selectedBetType = BetType.RedBlack;
-    public BetType SelectedBetType { get => _selectedBetType; set { _selectedBetType = value; Raise(); RaiseComposerFlags(); } }
-    string _stake = "10"; public string Stake { get => _stake; set { _stake = value; Raise(); Raise(nameof(CanAddBet)); } }
-    int? _straightNumber; public int? StraightNumber { get => _straightNumber; set { _straightNumber = value; Raise(); Raise(nameof(CanAddBet)); } }
-    RedBlack? _selectedRB = RedBlack.Red; public RedBlack? SelectedRB { get => _selectedRB; set { _selectedRB = value; Raise(); Raise(nameof(CanAddBet)); } }
-    EvenOdd? _selectedEO; public EvenOdd? SelectedEO { get => _selectedEO; set { _selectedEO = value; Raise(); Raise(nameof(CanAddBet)); } }
-    LowHigh? _selectedLH; public LowHigh? SelectedLH { get => _selectedLH; set { _selectedLH = value; Raise(); Raise(nameof(CanAddBet)); } }
-    int? _selectedDozen; public int? SelectedDozen { get => _selectedDozen; set { _selectedDozen = value; Raise(); Raise(nameof(CanAddBet)); } }
-    int? _selectedColumn; public int? SelectedColumn { get => _selectedColumn; set { _selectedColumn = value; Raise(); Raise(nameof(CanAddBet)); } }
+    // ===== Cells =====
+    public ObservableCollection<CellView> ZeroCell { get; } = new();
+    public ObservableCollection<CellView> NumberCells { get; } = new();
+    public ObservableCollection<CellView> OutsideEvenMoney { get; } = new(); // Red/Black, Even/Odd, Low/High
+    public ObservableCollection<CellView> OutsideDozens { get; } = new();     // Dozen 1/2/3
+    public ObservableCollection<CellView> OutsideColumns { get; } = new();    // Column 1/2/3
 
-    // Visibility flags
-    public bool ShowStraight { get; private set; }
-    public bool ShowRB { get; private set; }
-    public bool ShowEO { get; private set; }
-    public bool ShowLH { get; private set; }
-    public bool ShowDozen { get; private set; }
-    public bool ShowColumn { get; private set; }
-    void RaiseComposerFlags()
-    {
-        ShowStraight = SelectedBetType == BetType.Straight;
-        ShowRB = SelectedBetType == BetType.RedBlack;
-        ShowEO = SelectedBetType == BetType.EvenOdd;
-        ShowLH = SelectedBetType == BetType.LowHigh;
-        ShowDozen = SelectedBetType == BetType.Dozen;
-        ShowColumn = SelectedBetType == BetType.Column;
-        Raise(nameof(ShowStraight)); Raise(nameof(ShowRB)); Raise(nameof(ShowEO));
-        Raise(nameof(ShowLH)); Raise(nameof(ShowDozen)); Raise(nameof(ShowColumn));
-    }
-
-    // Bets list
+    // ===== Bets summary for the right list =====
     public ObservableCollection<BetView> Bets { get; } = new();
-    BetView? _selectedBet; public BetView? SelectedBet { get => _selectedBet; set { _selectedBet = value; Raise(); } }
 
-    public bool CanAddBet => int.TryParse(Stake, out var s) && s > 0 && ComposerValid();
-    bool ComposerValid() => SelectedBetType switch
-    {
-        BetType.Straight => StraightNumber is not null,
-        BetType.RedBlack => SelectedRB is not null,
-        BetType.EvenOdd => SelectedEO is not null,
-        BetType.LowHigh => SelectedLH is not null,
-        BetType.Dozen => SelectedDozen is not null,
-        BetType.Column => SelectedColumn is not null,
-        _ => false
-    };
+    // ===== Result =====
+    int _lastSpinNumber;
+    public int LastSpinNumber { get => _lastSpinNumber; private set { _lastSpinNumber = value; Raise(); Raise(nameof(LastSpinLabel)); } }
 
-    Bet BuildBet(int stake) => SelectedBetType switch
-    {
-        BetType.Straight => new(BetType.Straight, stake, Number: StraightNumber),
-        BetType.RedBlack => new(BetType.RedBlack, stake, RB: SelectedRB),
-        BetType.EvenOdd => new(BetType.EvenOdd, stake, EO: SelectedEO),
-        BetType.LowHigh => new(BetType.LowHigh, stake, LH: SelectedLH),
-        BetType.Dozen => new(BetType.Dozen, stake, Dozen: SelectedDozen),
-        BetType.Column => new(BetType.Column, stake, Column: SelectedColumn),
-        _ => throw new NotSupportedException()
-    };
-    string Describe(Bet b) => b.Type switch
-    {
-        BetType.Straight => $"#{b.Number}",
-        BetType.RedBlack => $"{b.RB}",
-        BetType.EvenOdd => $"{b.EO}",
-        BetType.LowHigh => $"{b.LH}",
-        BetType.Dozen => $"Dozen {b.Dozen}",
-        BetType.Column => $"Column {b.Column}",
-        _ => ""
-    };
+    Core.Color _lastSpinColor = Core.Color.Green;
+    public Core.Color LastSpinColor { get => _lastSpinColor; private set { _lastSpinColor = value; Raise(); } }
 
-    // Result
-    int _lastSpinNumber; public int LastSpinNumber { get => _lastSpinNumber; private set { _lastSpinNumber = value; Raise(); Raise(nameof(LastSpinLabel)); } }
-    Roulette.Core.Color _lastSpinColor = Roulette.Core.Color.Green; public Roulette.Core.Color LastSpinColor { get => _lastSpinColor; private set { _lastSpinColor = value; Raise(); } }
     public string LastSpinLabel => $"Landed on {LastSpinNumber} ({LastSpinColor})";
-    int _lastNetResult; public int LastNetResult { get => _lastNetResult; private set { _lastNetResult = value; Raise(); } }
 
-    // Commands
-    public ICommand AddBetCommand { get; }
+    int _lastNetResult;
+    public int LastNetResult { get => _lastNetResult; private set { _lastNetResult = value; Raise(); } }
+
+    // ===== Commands =====
+    public ICommand AddStakeCommand { get; }
     public ICommand ClearBetsCommand { get; }
     public ICommand SpinCommand { get; }
 
     public GameViewModel()
     {
-        RaiseComposerFlags();
+        BuildCells();
 
-        AddBetCommand = new RelayCommand(_ =>
+        // respond to stake changes
+        Subscribe(NumberCells);
+        Subscribe(ZeroCell);
+        Subscribe(OutsideEvenMoney);
+        Subscribe(OutsideDozens);
+        Subscribe(OutsideColumns);
+        RefreshBets();
+
+        AddStakeCommand = new RelayCommand(keyObj =>
         {
-            if (!int.TryParse(Stake, out var stake) || stake <= 0) return;
-            var bet = BuildBet(stake);
-            Bets.Add(new BetView(bet, Describe(bet)));
-        }, _ => CanAddBet);
+            if (keyObj is not string key) return;
+            var cell = FindCell(key);
+            if (cell is null) return;
+            cell.Stake += SelectedChipValue;
+        });
 
-        ClearBetsCommand = new RelayCommand(_ => Bets.Clear(), _ => Bets.Any());
+        ClearBetsCommand = new RelayCommand(_ => ClearAllStakes(), _ => Bets.Any());
 
         SpinCommand = new RelayCommand(_ =>
         {
-            var spin = Wheel.Spin();
+            var compiled = CompileBetsFromCells();
+            var spin = Core.Wheel.Spin();
             LastSpinNumber = spin.Number;
             LastSpinColor = spin.Color;
-            LastNetResult = Payouts.EvaluateMany(Bets.Select(b => b.Bet), spin);
+            LastNetResult = Core.Payouts.EvaluateMany(compiled.Select(bv => bv.Bet), spin);
         });
+    }
+
+    void BuildCells()
+    {
+        // Zero
+        ZeroCell.Add(new CellView("N:0", "0", new Media.SolidColorBrush(Media.Colors.Green)));
+
+        // Numbers 1..36 arranged 3 rows x 12 columns (top row = 3,6,... bottom = 1,4,...)
+        var ordered = Enumerable.Range(1, 36)
+            .OrderBy(n => (n - 1) % 3) // row
+            .ThenBy(n => (n - 1) / 3)  // column
+            .ToList();
+
+        foreach (var n in ordered)
+        {
+            var isRed = Core.Wheel.GetColor(n) == Core.Color.Red;
+            var bg = new Media.SolidColorBrush(isRed ? ColorFromHex("#d9534f") : ColorFromHex("#343a40"));
+            NumberCells.Add(new CellView($"N:{n}", n.ToString(), bg));
+        }
+
+        // Even-money
+        OutsideEvenMoney.Add(new CellView("RB:Red", "RED", new Media.SolidColorBrush(ColorFromHex("#d9534f"))));
+        OutsideEvenMoney.Add(new CellView("RB:Black", "BLACK", new Media.SolidColorBrush(ColorFromHex("#343a40"))));
+        OutsideEvenMoney.Add(new CellView("EO:Even", "EVEN", new Media.SolidColorBrush(ColorFromHex("#2563eb"))));
+        OutsideEvenMoney.Add(new CellView("EO:Odd", "ODD", new Media.SolidColorBrush(ColorFromHex("#2563eb"))));
+        OutsideEvenMoney.Add(new CellView("LH:Low", "1–18", new Media.SolidColorBrush(ColorFromHex("#198754"))));
+        OutsideEvenMoney.Add(new CellView("LH:High", "19–36", new Media.SolidColorBrush(ColorFromHex("#198754"))));
+
+        // Dozens
+        OutsideDozens.Add(new CellView("DZ:1", "1st 12", new Media.SolidColorBrush(ColorFromHex("#6c757d"))));
+        OutsideDozens.Add(new CellView("DZ:2", "2nd 12", new Media.SolidColorBrush(ColorFromHex("#6c757d"))));
+        OutsideDozens.Add(new CellView("DZ:3", "3rd 12", new Media.SolidColorBrush(ColorFromHex("#6c757d"))));
+
+        // Columns
+        OutsideColumns.Add(new CellView("CL:1", "Column 1", new Media.SolidColorBrush(ColorFromHex("#6c757d"))));
+        OutsideColumns.Add(new CellView("CL:2", "Column 2", new Media.SolidColorBrush(ColorFromHex("#6c757d"))));
+        OutsideColumns.Add(new CellView("CL:3", "Column 3", new Media.SolidColorBrush(ColorFromHex("#6c757d"))));
+    }
+
+    static Media.Color ColorFromHex(string hex) =>
+        (Media.Color)Media.ColorConverter.ConvertFromString(hex);
+
+    void Subscribe(ObservableCollection<CellView> list)
+    {
+        foreach (var c in list) c.PropertyChanged += OnCellChanged;
+        list.CollectionChanged += (s, e) =>
+        {
+            if (e.NewItems != null) foreach (CellView c in e.NewItems) c.PropertyChanged += OnCellChanged;
+            if (e.OldItems != null) foreach (CellView c in e.OldItems) c.PropertyChanged -= OnCellChanged;
+        };
+    }
+
+    void OnCellChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(CellView.Stake))
+            RefreshBets();
+    }
+
+    void RefreshBets()
+    {
+        Bets.Clear();
+
+        // zero & numbers
+        foreach (var cell in ZeroCell.Concat(NumberCells).Where(c => c.Stake > 0))
+        {
+            if (cell.Key == "N:0")
+                Bets.Add(new BetView(new Core.Bet(Core.BetType.Straight, cell.Stake, Number: 0), "#0", "Straight"));
+            else
+            {
+                var n = int.Parse(cell.Label);
+                Bets.Add(new BetView(new Core.Bet(Core.BetType.Straight, cell.Stake, Number: n), $"#{n}", "Straight"));
+            }
+        }
+
+        // even-money
+        foreach (var c in OutsideEvenMoney.Where(c => c.Stake > 0))
+        {
+            switch (c.Key)
+            {
+                case "RB:Red": Bets.Add(new BetView(new Core.Bet(Core.BetType.RedBlack, c.Stake, RB: Core.RedBlack.Red), "Red", "Red/Black")); break;
+                case "RB:Black": Bets.Add(new BetView(new Core.Bet(Core.BetType.RedBlack, c.Stake, RB: Core.RedBlack.Black), "Black", "Red/Black")); break;
+                case "EO:Even": Bets.Add(new BetView(new Core.Bet(Core.BetType.EvenOdd, c.Stake, EO: Core.EvenOdd.Even), "Even", "Even/Odd")); break;
+                case "EO:Odd": Bets.Add(new BetView(new Core.Bet(Core.BetType.EvenOdd, c.Stake, EO: Core.EvenOdd.Odd), "Odd", "Even/Odd")); break;
+                case "LH:Low": Bets.Add(new BetView(new Core.Bet(Core.BetType.LowHigh, c.Stake, LH: Core.LowHigh.Low), "1–18", "Low/High")); break;
+                case "LH:High": Bets.Add(new BetView(new Core.Bet(Core.BetType.LowHigh, c.Stake, LH: Core.LowHigh.High), "19–36", "Low/High")); break;
+            }
+        }
+
+        // dozens
+        foreach (var c in OutsideDozens.Where(c => c.Stake > 0))
+        {
+            int dz = int.Parse(c.Key.Split(':')[1]);
+            Bets.Add(new BetView(new Core.Bet(Core.BetType.Dozen, c.Stake, Dozen: dz), $"Dozen {dz}", "Dozen"));
+        }
+
+        // columns
+        foreach (var c in OutsideColumns.Where(c => c.Stake > 0))
+        {
+            int cl = int.Parse(c.Key.Split(':')[1]);
+            Bets.Add(new BetView(new Core.Bet(Core.BetType.Column, c.Stake, Column: cl), $"Column {cl}", "Column"));
+        }
+
+        Raise(nameof(Bets));
+    }
+
+    void ClearAllStakes()
+    {
+        foreach (var c in ZeroCell) c.Stake = 0;
+        foreach (var c in NumberCells) c.Stake = 0;
+        foreach (var c in OutsideEvenMoney) c.Stake = 0;
+        foreach (var c in OutsideDozens) c.Stake = 0;
+        foreach (var c in OutsideColumns) c.Stake = 0;
+        RefreshBets();
+    }
+
+    CellView? FindCell(string key) =>
+        ZeroCell.Concat(NumberCells).Concat(OutsideEvenMoney).Concat(OutsideDozens).Concat(OutsideColumns)
+                .FirstOrDefault(c => c.Key == key);
+
+    // Compile once at spin time
+    ObservableCollection<BetView> CompileBetsFromCells()
+    {
+        RefreshBets();
+        return Bets;
     }
 }
 
-public  class BetView
+// ===== Cell and helpers =====
+public sealed class CellView : INotifyPropertyChanged
 {
-    public Bet Bet { get; }
-    public BetType Type => Bet.Type;
-    public int Stake => Bet.Stake;
-    public string Description { get; }
-    public BetView(Bet bet, string description) { Bet = bet; Description = description; }
+    public string Key { get; }
+    public string Label { get; }
+    public Media.Brush Background { get; }
+
+    int _stake;
+    public int Stake { get => _stake; set { _stake = value; PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Stake))); } }
+
+    public CellView(string key, string label, Media.Brush background)
+    {
+        Key = key; Label = label; Background = background;
+    }
+
+    public event PropertyChangedEventHandler? PropertyChanged;
 }
 
-public  class RelayCommand : ICommand
+public sealed class BetView
+{
+    public Core.Bet Bet { get; }
+    public string Description { get; }
+    public string Type { get; }
+    public int Stake => Bet.Stake;
+
+    public BetView(Core.Bet bet, string description, string type)
+    {
+        Bet = bet; Description = description; Type = type;
+    }
+}
+
+public sealed class RelayCommand : ICommand
 {
     readonly Action<object?> _exec; readonly Predicate<object?>? _can;
     public RelayCommand(Action<object?> exec, Predicate<object?>? can = null) { _exec = exec; _can = can; }
