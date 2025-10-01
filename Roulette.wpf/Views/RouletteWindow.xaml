@@ -3,6 +3,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
     xmlns:viewModels="clr-namespace:Roulette.Wpf.ViewModels"
+    xmlns:views="clr-namespace:Roulette.Wpf.Views"
     xmlns:conv="clr-namespace:Roulette.Wpf.Converters"
     Title="Roulette" Width="1180" Height="820" WindowStartupLocation="CenterScreen">
 
@@ -261,36 +262,75 @@
             <!-- ===== RIGHT: WHEEL (animated) ===== -->
             <Border Style="{StaticResource Card}">
                 <Grid>
-                    <!-- Wheel image with a named RotateTransform we animate -->
-                    <Grid>
-                        <Image
-                         Source="/Roulette.Wpf;component/Assets/wheel.png"
-                         Stretch="Uniform"
-                         RenderOptions.BitmapScalingMode="HighQuality"
-                         HorizontalAlignment="Center"
-                         VerticalAlignment="Center"
-                         Width="360" Height="360">
+                    <Grid Width="360" Height="360" HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <!-- Wheel image with a named RotateTransform we animate -->
+                        <Image Source="/Roulette.Wpf;component/Assets/wheel.png"
+                               Stretch="Uniform"
+                               RenderOptions.BitmapScalingMode="HighQuality"
+                               RenderTransformOrigin="0.5,0.5">
                             <Image.RenderTransform>
-                                <RotateTransform x:Name="WheelRotate" Angle="0" CenterX="180" CenterY="180"/>
+                                <RotateTransform x:Name="WheelRotate" Angle="0"/>
                             </Image.RenderTransform>
                         </Image>
 
+                        <!-- Number ring overlay -->
+                        <ItemsControl ItemsSource="{x:Static views:RouletteWindow.WheelLabels}"
+                                      IsHitTestVisible="False"
+                                      Panel.ZIndex="2">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <Canvas Width="360" Height="360"/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemContainerStyle>
+                                <Style TargetType="ContentPresenter">
+                                    <Setter Property="Canvas.Left" Value="{Binding Left}"/>
+                                    <Setter Property="Canvas.Top" Value="{Binding Top}"/>
+                                </Style>
+                            </ItemsControl.ItemContainerStyle>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid Width="34" Height="34" RenderTransformOrigin="0.5,0.5">
+                                        <Grid.RenderTransform>
+                                            <RotateTransform Angle="{Binding Angle}"/>
+                                        </Grid.RenderTransform>
+                                        <Border Width="34" Height="34" CornerRadius="17"
+                                                Background="{Binding Background}"
+                                                BorderBrush="White" BorderThickness="2"
+                                                RenderTransformOrigin="0.5,0.5">
+                                            <TextBlock Text="{Binding Number}" FontSize="14" FontWeight="Bold" Foreground="White"
+                                                       HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                       RenderTransformOrigin="0.5,0.5">
+                                                <TextBlock.RenderTransform>
+                                                    <RotateTransform Angle="{Binding TextAngle}"/>
+                                                </TextBlock.RenderTransform>
+                                            </TextBlock>
+                                        </Border>
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+
                         <!-- Ball orbiting the wheel (perfect circle around the center) -->
-                        <Ellipse x:Name="Ball"
-         Width="12" Height="12"
-         Fill="White" Stroke="#999" StrokeThickness="1"
-         HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,22,0,0">
-                            <Ellipse.Effect>
-                                <DropShadowEffect BlurRadius="6" ShadowDepth="0" Color="#66000000"/>
-                            </Ellipse.Effect>
-                            <Ellipse.RenderTransform>
-                                <!-- CenterX/CenterY must match half the wheel size (180 for 360px wheel) -->
-                                <RotateTransform x:Name="BallRotate" Angle="0" CenterX="180" CenterY="180"/>
-                            </Ellipse.RenderTransform>
-                        </Ellipse>
+                        <Grid Width="360" Height="360" RenderTransformOrigin="0.5,0.5" Panel.ZIndex="3">
+                            <Grid.Clip>
+                                <EllipseGeometry Center="180,180" RadiusX="170" RadiusY="170"/>
+                            </Grid.Clip>
+                            <Grid.RenderTransform>
+                                <RotateTransform x:Name="BallRotate" Angle="0"/>
+                            </Grid.RenderTransform>
+                            <Ellipse x:Name="Ball"
+                                     Width="14" Height="14"
+                                     Fill="White" Stroke="#999" StrokeThickness="1"
+                                     HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,36,0,0">
+                                <Ellipse.Effect>
+                                    <DropShadowEffect BlurRadius="6" ShadowDepth="0" Color="#66000000"/>
+                                </Ellipse.Effect>
+                            </Ellipse>
+                        </Grid>
 
                         <!-- Fixed marker at the top (ball “window”) -->
-                        <Grid HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,6,0,0">
+                        <Grid HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,6,0,0" Panel.ZIndex="4">
                             <Polygon Points="0,0 12,0 6,10" Fill="White" Stroke="#444" StrokeThickness="1"/>
                         </Grid>
 
