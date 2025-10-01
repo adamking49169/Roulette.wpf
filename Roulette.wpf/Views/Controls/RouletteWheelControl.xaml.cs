@@ -15,6 +15,11 @@ public partial class RouletteWheelControl : UserControl
         0, 32, 15, 19, 4, 21, 2, 25, 17, 34, 6, 27, 13, 36, 11, 30, 8, 23,
         10, 5, 24, 16, 33, 1, 20, 14, 31, 9, 22, 18, 29, 7, 28, 12, 35, 3, 26
     };
+    private static readonly int[] RedNumbers =
+   {
+        1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36
+    };
+
 
     private readonly double _slotAngle = 360.0 / 37.0;
     private readonly DispatcherTimer _timer = new() { Interval = TimeSpan.FromMilliseconds(16) };
@@ -39,7 +44,7 @@ public partial class RouletteWheelControl : UserControl
     private const double BallOuterRadius = 300;
     private const double PocketCenterRadius = 240;
     private const double PocketInnerRadius = 210;
-
+    private const double BallRestRadius = PocketInnerRadius + 16;
     public RouletteWheelControl()
     {
         InitializeComponent();
@@ -106,7 +111,7 @@ public partial class RouletteWheelControl : UserControl
         }
 
         _ballRadius += _ballRadVel * dt;
-        double minRadius = _captured ? PocketInnerRadius + 6 : PocketCenterRadius;
+        double minRadius = _captured ? BallRestRadius : PocketCenterRadius;
         if (_ballRadius < minRadius)
         {
             _ballRadius = minRadius;
@@ -134,14 +139,14 @@ public partial class RouletteWheelControl : UserControl
             }
         }
 
-        if (_captured && _ballRadius > PocketInnerRadius + 6)
+        if (_captured && _ballRadius > BallRestRadius)
         {
             _ballRadVel = -120;
         }
-        if (_captured && _ballRadius <= PocketInnerRadius + 6)
+        if (_captured && _ballRadius <= BallRestRadius)
         {
             _ballRadVel = 0;
-            _ballRadius = PocketInnerRadius + 6;
+            _ballRadius = BallRestRadius;
         }
 
         if (_captured && Math.Abs(_wheelVel) < 8 && Math.Abs(_ballRadVel) < 5)
@@ -162,16 +167,37 @@ public partial class RouletteWheelControl : UserControl
         double cx = WheelSize / 2.0;
         double cy = WheelSize / 2.0;
 
+        double slotInnerRadius = PocketInnerRadius + 4;
+        double slotOuterRadius = PocketInnerRadius + 28;
+        double slotMargin = _slotAngle * 0.18;
+
         for (int i = 0; i < EuropeanOrder.Length; i++)
         {
             int num = EuropeanOrder[i];
             string col = PocketBrushKey(num);
+            double startAngle = i * _slotAngle - 90;
+            double endAngle = (i + 1) * _slotAngle - 90;
 
-            var slice = CreateSlice(cx, cy, PocketInnerRadius, PocketCenterRadius + 32, i * _slotAngle - 90, (i + 1) * _slotAngle - 90);
+            var slice = CreateSlice(cx, cy, PocketInnerRadius, PocketCenterRadius + 32, startAngle, endAngle);
             slice.Fill = FindResourceOrDefault(col, new SolidColorBrush(ColorFromHex("#d32f2f")));
             slice.Stroke = Brushes.Black;
             slice.StrokeThickness = 1;
             PocketsLayer.Children.Add(slice);
+
+
+            var slot = CreateSlice(cx, cy, slotInnerRadius, slotOuterRadius, startAngle + slotMargin, endAngle - slotMargin);
+            slot.Fill = SlotBrushForNumber(num);
+            slot.Stroke = new SolidColorBrush(ColorFromHex("#060606"));
+            slot.StrokeThickness = 0.6;
+            slot.Opacity = 0.9;
+            PocketsLayer.Children.Add(slot);
+
+            var divider = CreateRadialLine(cx, cy, PocketInnerRadius - 4, PocketCenterRadius + 34, startAngle);
+            divider.Stroke = new SolidColorBrush(ColorFromHex("#44000000"));
+            divider.StrokeThickness = 1.6;
+            divider.StrokeStartLineCap = PenLineCap.Round;
+            divider.StrokeEndLineCap = PenLineCap.Round;
+            PocketsLayer.Children.Add(divider);
 
             double midAngle = (i + 0.5) * _slotAngle - 90;
             var (tx, ty) = Polar(cx, cy, PocketCenterRadius + 10, midAngle);
@@ -220,7 +246,18 @@ public partial class RouletteWheelControl : UserControl
 
         return new Path { Data = new PathGeometry { Figures = { fig } } };
     }
-
+    private static Line CreateRadialLine(double cx, double cy, double rInner, double rOuter, double angleDeg)
+    {
+        var (x1, y1) = Polar(cx, cy, rInner, angleDeg);
+        var (x2, y2) = Polar(cx, cy, rOuter, angleDeg);
+        return new Line
+        {
+            X1 = x1,
+            Y1 = y1,
+            X2 = x2,
+            Y2 = y2
+        };
+    }
     private static (double x, double y) Polar(double cx, double cy, double r, double deg)
     {
         double rad = Deg2Rad(deg);
@@ -240,7 +277,7 @@ public partial class RouletteWheelControl : UserControl
         Canvas.SetTop(Ball, y - Ball.Height / 2.0);
     }
 
-    private double PocketAngleForIndex(int index) => index * _slotAngle - 90.0;
+    private double PocketAngleForIndex(int index) => (index + 0.5) * _slotAngle - 90.0;
 
     private static double Deg2Rad(double d) => d * Math.PI / 180.0;
 
@@ -275,12 +312,11 @@ public partial class RouletteWheelControl : UserControl
         }
         return v;
     }
-
+    private static bool IsRed(int number) => RedNumbers.Contains(number);
     private static string PocketBrushKey(int number)
     {
         if (number == 0) return "RouletteGreen";
-        int[] reds = { 1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36 };
-        return reds.Contains(number) ? "RouletteRed" : "RouletteBlack";
+        return IsRed(number) ? "RouletteRed" : "RouletteBlack";
     }
 
     private Brush FindResourceOrDefault(string key, Brush fallback)
@@ -299,5 +335,19 @@ public partial class RouletteWheelControl : UserControl
         };
     }
 
+    private Brush SlotBrushForNumber(int number)
+    {
+        if (number == 0)
+        {
+            return new SolidColorBrush(ColorFromHex("#0b6d3d"));
+        }
+
+        if (IsRed(number))
+        {
+            return new SolidColorBrush(ColorFromHex("#912020"));
+        }
+
+        return new SolidColorBrush(ColorFromHex("#1d1d1d"));
+    }
     private static Color ColorFromHex(string hex) => (Color)ColorConverter.ConvertFromString(hex);
 }
