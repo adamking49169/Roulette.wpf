@@ -43,6 +43,25 @@ public sealed class GameViewModel : INotifyPropertyChanged
     int _lastNetResult;
     public int LastNetResult { get => _lastNetResult; private set { _lastNetResult = value; Raise(); } }
 
+    bool _useSeed;
+    public bool UseSeed { get => _useSeed; set { if (_useSeed != value) { _useSeed = value; Raise(); } } }
+
+    string? _seedText;
+    public string? SeedText { get => _seedText; set { if (_seedText != value) { _seedText = value; Raise(); } } }
+
+    bool _isSpinInProgress;
+    public bool IsSpinInProgress
+    {
+        get => _isSpinInProgress;
+        private set
+        {
+            if (_isSpinInProgress == value) return;
+            _isSpinInProgress = value;
+            Raise();
+            CommandManager.InvalidateRequerySuggested();
+        }
+    }
+
     // ===== Commands =====
     public ICommand AddStakeCommand { get; }
     public ICommand ClearBetsCommand { get; }
@@ -74,12 +93,14 @@ public sealed class GameViewModel : INotifyPropertyChanged
 
         SpinCommand = new RelayCommand(_ =>
         {
-            // Freeze current bets into a list so results match what the user sees
+            if (IsSpinInProgress) return;
+
             RefreshBets();
-            var spin = Core.Wheel.Spin();
-            _pendingSpin = spin;               // store so we can commit after the animation
-            SpinRequested?.Invoke(spin.Number); // tell the view to animate to this number
-        });
+            var spin = GenerateSpin();
+            _pendingSpin = spin;
+            IsSpinInProgress = true;
+            SpinRequested?.Invoke(spin.Number);
+        }, _ => !IsSpinInProgress);
 
     }
     // Visual spin plumbing
@@ -97,6 +118,20 @@ public sealed class GameViewModel : INotifyPropertyChanged
             LastNetResult = Core.Payouts.EvaluateMany(Bets.Select(b => b.Bet), s);
             _pendingSpin = null;
         }
+
+        IsSpinInProgress = false;
+    }
+
+    Core.SpinResult GenerateSpin()
+    {
+        if (UseSeed && int.TryParse(SeedText, out int seed))
+        {
+            var rng = new Random(seed);
+            int number = rng.Next(0, 37);
+            return new Core.SpinResult(number, Core.Wheel.GetColor(number));
+        }
+
+        return Core.Wheel.Spin();
     }
 
     void BuildCells()
