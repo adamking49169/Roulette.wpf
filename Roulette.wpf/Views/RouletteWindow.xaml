@@ -136,7 +136,7 @@
                     <ItemsControl Grid.Column="0" ItemsSource="{Binding ZeroCell}"
                                   ItemTemplate="{StaticResource ZeroCellTemplate}"/>
 
-                    <!-- 3 × 12 number grid (top row 3/6/9..., mid 2/5/8..., bottom 1/4/7...) -->
+                    <!-- 3 × 12 number grid -->
                     <ItemsControl Grid.Column="1" ItemsSource="{Binding NumberCells}"
                                   ItemTemplate="{StaticResource RectCellTemplate}">
                         <ItemsControl.ItemsPanel>
@@ -212,7 +212,7 @@
                             BorderBrush="{DynamicResource FeltBorder}" BorderThickness="2"
                             Margin="2" Height="52" Cursor="Hand" Content="Even"/>
 
-                    <!-- Red diamond (centered, fills more) -->
+                    <!-- Red diamond -->
                     <Button Grid.Column="2" Command="{Binding AddStakeCommand}" CommandParameter="RB:Red"
                             Background="{DynamicResource FeltDark}" BorderBrush="{DynamicResource FeltBorder}"
                             BorderThickness="2" Margin="2" Height="52" Cursor="Hand">
@@ -227,7 +227,7 @@
                         </Grid>
                     </Button>
 
-                    <!-- Black diamond (centered, fills more) -->
+                    <!-- Black diamond -->
                     <Button Grid.Column="3" Command="{Binding AddStakeCommand}" CommandParameter="RB:Black"
                             Background="{DynamicResource FeltDark}" BorderBrush="{DynamicResource FeltBorder}"
                             BorderThickness="2" Margin="2" Height="52" Cursor="Hand">
@@ -263,7 +263,8 @@
                 <Grid>
                     <!-- Wheel image with a named RotateTransform we animate -->
                     <Grid>
-                        <Image Source="Assets/wheel.png"
+                        <Image
+                         Source="/Roulette.Wpf;component/Assets/wheel.png"
                          Stretch="Uniform"
                          RenderOptions.BitmapScalingMode="HighQuality"
                          HorizontalAlignment="Center"
@@ -273,6 +274,20 @@
                                 <RotateTransform x:Name="WheelRotate" Angle="0" CenterX="180" CenterY="180"/>
                             </Image.RenderTransform>
                         </Image>
+
+                        <!-- Ball orbiting the wheel (perfect circle around the center) -->
+                        <Ellipse x:Name="Ball"
+         Width="12" Height="12"
+         Fill="White" Stroke="#999" StrokeThickness="1"
+         HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,22,0,0">
+                            <Ellipse.Effect>
+                                <DropShadowEffect BlurRadius="6" ShadowDepth="0" Color="#66000000"/>
+                            </Ellipse.Effect>
+                            <Ellipse.RenderTransform>
+                                <!-- CenterX/CenterY must match half the wheel size (180 for 360px wheel) -->
+                                <RotateTransform x:Name="BallRotate" Angle="0" CenterX="180" CenterY="180"/>
+                            </Ellipse.RenderTransform>
+                        </Ellipse>
 
                         <!-- Fixed marker at the top (ball “window”) -->
                         <Grid HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,6,0,0">
