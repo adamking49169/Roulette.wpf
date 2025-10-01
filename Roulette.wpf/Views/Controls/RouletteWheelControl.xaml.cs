@@ -106,7 +106,15 @@ public partial class RouletteWheelControl : UserControl
         }
 
         _ballRadius += _ballRadVel * dt;
-        if (_ballRadius < PocketCenterRadius) _ballRadius = PocketCenterRadius;
+        double minRadius = _captured ? PocketInnerRadius + 6 : PocketCenterRadius;
+        if (_ballRadius < minRadius)
+        {
+            _ballRadius = minRadius;
+            if (_captured)
+            {
+                _ballRadVel = 0;
+            }
+        }
 
         if (!_captured && Math.Abs(_ballVel) < 120 && Math.Abs(_wheelVel) < 160 && _ballRadius <= PocketCenterRadius + 1)
         {
@@ -175,8 +183,10 @@ public partial class RouletteWheelControl : UserControl
                 FontSize = 14,
                 RenderTransform = new RotateTransform(midAngle + 90, 0, 0)
             };
-            Canvas.SetLeft(tb, tx - 8);
-            Canvas.SetTop(tb, ty - 9);
+            tb.RenderTransformOrigin = new Point(0.5, 0.5);
+            tb.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+            Canvas.SetLeft(tb, tx - tb.DesiredSize.Width / 2);
+            Canvas.SetTop(tb, ty - tb.DesiredSize.Height / 2);
             PocketsLayer.Children.Add(tb);
         }
 
