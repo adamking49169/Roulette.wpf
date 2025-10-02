@@ -6,21 +6,55 @@
              mc:Ignorable="d"
              d:DesignWidth="700"
              d:DesignHeight="700">
+    <UserControl.Resources>
+        <RadialGradientBrush x:Key="OuterRimBrush" GradientOrigin="0.5,0.4" RadiusX="0.7" RadiusY="0.7">
+            <GradientStop Color="#3c4a4f" Offset="0"/>
+            <GradientStop Color="#10181d" Offset="0.7"/>
+            <GradientStop Color="#060809" Offset="1"/>
+        </RadialGradientBrush>
+
+        <RadialGradientBrush x:Key="InnerRimBrush" GradientOrigin="0.55,0.45" RadiusX="0.9" RadiusY="0.9">
+            <GradientStop Color="#555e62" Offset="0"/>
+            <GradientStop Color="#1f262b" Offset="0.6"/>
+            <GradientStop Color="#0a0d0f" Offset="1"/>
+        </RadialGradientBrush>
+
+        <LinearGradientBrush x:Key="WoodInlayBrush" StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#6a3b16" Offset="0"/>
+            <GradientStop Color="#a8672a" Offset="0.4"/>
+            <GradientStop Color="#4a240c" Offset="1"/>
+        </LinearGradientBrush>
+
+        <LinearGradientBrush x:Key="InnerWoodInlayBrush" StartPoint="0,1" EndPoint="1,0">
+            <GradientStop Color="#7b4520" Offset="0"/>
+            <GradientStop Color="#c17b37" Offset="0.5"/>
+            <GradientStop Color="#5a2a11" Offset="1"/>
+        </LinearGradientBrush>
+
+        <RadialGradientBrush x:Key="HubBrush" GradientOrigin="0.45,0.45" RadiusX="0.9" RadiusY="0.9">
+            <GradientStop Color="#5f666c" Offset="0"/>
+            <GradientStop Color="#2a2f34" Offset="0.6"/>
+            <GradientStop Color="#0f1113" Offset="1"/>
+        </RadialGradientBrush>
+    </UserControl.Resources>
     <Grid Background="#111">
         <Viewbox Stretch="Uniform">
             <Grid Width="700" Height="700">
-                <Ellipse Width="700" Height="700" Fill="#0e3a22" Stroke="#083019" StrokeThickness="4"/>
+                <Grid.Effect>
+                    <DropShadowEffect BlurRadius="20" Color="#66000000" ShadowDepth="10" Direction="315"/>
+                </Grid.Effect>
+                <Ellipse Width="700" Height="700" Fill="{StaticResource OuterRimBrush}" Stroke="#0a1a10" StrokeThickness="6"/>
                 <Grid x:Name="WheelRoot" Width="620" Height="620">
                     <Grid.RenderTransform>
                         <RotateTransform x:Name="WheelRotate" Angle="0" CenterX="310" CenterY="310"/>
                     </Grid.RenderTransform>
 
-                    <Ellipse Width="620" Height="620" Fill="#202020" Stroke="#555" StrokeThickness="3"/>
+                    <Ellipse Width="620" Height="620" Fill="{StaticResource InnerRimBrush}" Stroke="#1a2024" StrokeThickness="4"/>
                     <Canvas x:Name="PocketsLayer" Width="620" Height="620"/>
-                    <Ellipse Width="480" Height="480" Fill="#2a2a2a" Stroke="#444" StrokeThickness="2"/>
-                    <Ellipse Width="330" Height="330" Fill="#1e1e1e" Stroke="#3a3a3a" StrokeThickness="1"/>
-                    <Ellipse Width="125" Height="125" Fill="#2b2b2b" Stroke="#777" StrokeThickness="3"/>
-                    <Ellipse Width="18" Height="18" Fill="#bbb" Stroke="#111" StrokeThickness="1"/>
+                    <Ellipse Width="480" Height="480" Fill="{StaticResource WoodInlayBrush}" Stroke="#2c1a0c" StrokeThickness="3"/>
+                    <Ellipse Width="330" Height="330" Fill="{StaticResource InnerWoodInlayBrush}" Stroke="#3a2314" StrokeThickness="2"/>
+                    <Ellipse Width="125" Height="125" Fill="{StaticResource HubBrush}" Stroke="#92999f" StrokeThickness="3"/>
+                    <Ellipse Width="18" Height="18" Fill="#dcdcdc" Stroke="#2a2d30" StrokeThickness="1.5"/>
                 </Grid>
 
                 <Canvas x:Name="BallLayer" Width="700" Height="700" IsHitTestVisible="False">

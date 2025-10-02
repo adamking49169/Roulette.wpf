@@ -31,6 +31,34 @@ public sealed class GameViewModel : INotifyPropertyChanged
     // ===== Bets summary =====
     public ObservableCollection<BetView> Bets { get; } = new();
 
+    // ===== Bankroll =====
+    int _balance;
+    public int Balance
+    {
+        get => _balance;
+        private set
+        {
+            if (_balance == value) return;
+            _balance = value;
+            Raise();
+            Raise(nameof(AvailableBalance));
+        }
+    }
+
+    int _tableStake;
+    public int TableStake
+    {
+        get => _tableStake;
+        private set
+        {
+            if (_tableStake == value) return;
+            _tableStake = value;
+            Raise();
+            Raise(nameof(AvailableBalance));
+        }
+    }
+
+    public int AvailableBalance => Balance - TableStake;
     // ===== Result =====
     int _lastSpinNumber;
     public int LastSpinNumber { get => _lastSpinNumber; private set { _lastSpinNumber = value; Raise(); Raise(nameof(LastSpinLabel)); } }
@@ -80,12 +108,16 @@ public sealed class GameViewModel : INotifyPropertyChanged
         Subscribe(OutsideDozens);
         Subscribe(OutsideColumns);
         RefreshBets();
-
+        Balance = 1000;
+        RefreshStakeTotals();
         AddStakeCommand = new RelayCommand(keyObj =>
         {
             if (keyObj is not string key) return;
             var cell = FindCell(key);
             if (cell is null) return;
+
+            if (TableStake + SelectedChipValue > Balance)
+                return;
 
             // Assign chip brush based on currently selected chip
             cell.ChipBrush = GetChipBrushForValue(SelectedChipValue);
@@ -118,6 +150,8 @@ public sealed class GameViewModel : INotifyPropertyChanged
             LastSpinNumber = s.Number;
             LastSpinColor = s.Color;
             LastNetResult = Core.Payouts.EvaluateMany(Bets.Select(b => b.Bet), s);
+            Balance += LastNetResult;
+            RefreshStakeTotals();
             AddRecentSpin(s.Number, s.Color);
             _pendingSpin = null;
         }
@@ -275,6 +309,18 @@ public sealed class GameViewModel : INotifyPropertyChanged
             Bets.Add(new BetView(new Core.Bet(Core.BetType.Column, c.Stake, Column: column), $"Column {column}", "Column"));
         }
         Raise(nameof(Bets));
+        RefreshStakeTotals();
+    }
+
+    void RefreshStakeTotals()
+    {
+        int total = ZeroCell.Concat(NumberCells)
+                             .Concat(OutsideEvenMoney)
+                             .Concat(OutsideDozens)
+                             .Concat(OutsideColumns)
+                             .Sum(c => c.Stake);
+
+        TableStake = total;
     }
 
     void ClearAllStakes()

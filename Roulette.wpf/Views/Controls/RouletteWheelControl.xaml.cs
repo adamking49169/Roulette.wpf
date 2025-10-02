@@ -3,6 +3,7 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using System.Windows.Media.Effects;
 using System.Windows.Shapes;
 using System.Windows.Threading;
 
@@ -189,17 +190,29 @@ public partial class RouletteWheelControl : UserControl
 
             var slice = CreateSlice(cx, cy, PocketInnerRadius, PocketCenterRadius + 32, startAngle, endAngle);
             slice.Fill = FindResourceOrDefault(col, new SolidColorBrush(ColorFromHex("#d32f2f")));
-            slice.Stroke = Brushes.Black;
-            slice.StrokeThickness = 1;
+            slice.Stroke = SlotStrokeForNumber(num);
+            slice.StrokeThickness = 1.2;
+            slice.Opacity = 0.96;
             PocketsLayer.Children.Add(slice);
+
+            var sliceGloss = CreateSlice(cx, cy, PocketCenterRadius + 18, PocketCenterRadius + 32, startAngle + slotMargin * 0.35, endAngle - slotMargin * 0.35);
+            sliceGloss.Fill = CreateGlossOverlayBrush();
+            sliceGloss.IsHitTestVisible = false;
+            PocketsLayer.Children.Add(sliceGloss);
 
 
             var slot = CreateSlice(cx, cy, slotInnerRadius, slotOuterRadius, startAngle + slotMargin, endAngle - slotMargin);
             slot.Fill = SlotBrushForNumber(num);
-            slot.Stroke = new SolidColorBrush(ColorFromHex("#060606"));
-            slot.StrokeThickness = 0.6;
+            slot.Stroke = SlotStrokeForNumber(num);
+            slot.StrokeThickness = 0.8;
             slot.Opacity = 0.9;
             PocketsLayer.Children.Add(slot);
+
+            double highlightMargin = slotMargin * 0.6;
+            var slotGloss = CreateSlice(cx, cy, slotOuterRadius - 6, slotOuterRadius, startAngle + slotMargin + highlightMargin, endAngle - slotMargin - highlightMargin);
+            slotGloss.Fill = CreateGlossOverlayBrush(0.85);
+            slotGloss.IsHitTestVisible = false;
+            PocketsLayer.Children.Add(slotGloss);
 
             var divider = CreateRadialLine(cx, cy, DividerInnerRadius, PocketCenterRadius + 34, startAngle);
             divider.Stroke = new SolidColorBrush(ColorFromHex("#44000000"));
@@ -212,11 +225,18 @@ public partial class RouletteWheelControl : UserControl
             var (tx, ty) = Polar(cx, cy, PocketCenterRadius + 10, midAngle);
             var tb = new TextBlock
             {
-                Text = num.ToString(),
-                Foreground = Brushes.White,
-                FontWeight = FontWeights.SemiBold,
-                FontSize = 14,
-                RenderTransform = new RotateTransform(midAngle + 90, 0, 0)
+                Foreground = new SolidColorBrush(ColorFromHex("#ffe6c6")),
+                FontWeight = FontWeights.Bold,
+                FontSize = 15,
+                RenderTransform = new RotateTransform(midAngle + 90, 0, 0),
+                Effect = new DropShadowEffect
+                {
+                    Color = ColorFromHex("#88000000"),
+                    BlurRadius = 8,
+                    ShadowDepth = 1.6,
+                    Direction = 320,
+                    Opacity = 0.8
+                }
             };
             tb.RenderTransformOrigin = new Point(0.5, 0.5);
             tb.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
@@ -348,15 +368,94 @@ public partial class RouletteWheelControl : UserControl
     {
         if (number == 0)
         {
-            return new SolidColorBrush(ColorFromHex("#0b6d3d"));
+            return CreateSlotGradient(
+                ColorFromHex("#d8ffe9"),
+                ColorFromHex("#1cc16a"),
+                ColorFromHex("#084f2d"));
         }
 
         if (IsRed(number))
         {
-            return new SolidColorBrush(ColorFromHex("#912020"));
+            return CreateSlotGradient(
+                ColorFromHex("#ffe3e3"),
+                ColorFromHex("#d63a3a"),
+                ColorFromHex("#4f0f0f"));
         }
 
-        return new SolidColorBrush(ColorFromHex("#1d1d1d"));
+        return CreateSlotGradient(
+            ColorFromHex("#f3f3f3"),
+            ColorFromHex("#3a3a3a"),
+            ColorFromHex("#060606"));
+    }
+
+    private Brush SlotStrokeForNumber(int number)
+    {
+        if (number == 0)
+        {
+            return CreateStrokeGradient(
+                ColorFromHex("#c9fce3"),
+                ColorFromHex("#13854a"),
+                ColorFromHex("#00311d"));
+        }
+
+        if (IsRed(number))
+        {
+            return CreateStrokeGradient(
+                ColorFromHex("#ffd9d9"),
+                ColorFromHex("#a72121"),
+                ColorFromHex("#2c0404"));
+        }
+
+        return CreateStrokeGradient(
+            ColorFromHex("#e8e8e8"),
+            ColorFromHex("#1f1f1f"),
+            ColorFromHex("#000000"));
+    }
+
+    private static LinearGradientBrush CreateSlotGradient(Color highlight, Color mid, Color shadow)
+    {
+        return new LinearGradientBrush
+        {
+            StartPoint = new Point(0.5, 0),
+            EndPoint = new Point(0.5, 1),
+            GradientStops = new GradientStopCollection
+            {
+                new GradientStop(highlight, 0),
+                new GradientStop(mid, 0.38),
+                new GradientStop(shadow, 1)
+            }
+        };
+    }
+
+    private static LinearGradientBrush CreateStrokeGradient(Color highlight, Color mid, Color shadow)
+    {
+        return new LinearGradientBrush
+        {
+            StartPoint = new Point(0, 0.5),
+            EndPoint = new Point(1, 0.5),
+            GradientStops = new GradientStopCollection
+            {
+                new GradientStop(highlight, 0),
+                new GradientStop(mid, 0.45),
+                new GradientStop(shadow, 1)
+            }
+        };
+    }
+
+    private static LinearGradientBrush CreateGlossOverlayBrush(double intensity = 0.7)
+    {
+        byte alpha = (byte)Math.Round(255 * intensity);
+        return new LinearGradientBrush
+        {
+            StartPoint = new Point(0.5, 0),
+            EndPoint = new Point(0.5, 1),
+            GradientStops = new GradientStopCollection
+            {
+                new GradientStop(Color.FromArgb(alpha, 255, 255, 255), 0),
+                new GradientStop(Color.FromArgb((byte)(alpha * 0.35), 255, 255, 255), 0.55),
+                new GradientStop(Color.FromArgb(0, 255, 255, 255), 1)
+            }
+        };
     }
     private static Color ColorFromHex(string hex) => (Color)ColorConverter.ConvertFromString(hex);
 }
