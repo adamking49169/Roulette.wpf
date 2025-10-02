@@ -19,6 +19,7 @@ namespace Roulette.Wpf.Converters
                     10 => new SolidColorBrush(Color.FromRgb(30, 30, 30)),   // black
                     20 => new SolidColorBrush(Color.FromRgb(25, 135, 84)),  // green
                     50 => new SolidColorBrush(Color.FromRgb(111, 66, 193)), // purple
+                    100 => new SolidColorBrush(Color.FromRgb(2, 48, 32)), // Dark Green
                     _ => new SolidColorBrush(Color.FromRgb(210, 180, 140)) // tan
                 };
             }
