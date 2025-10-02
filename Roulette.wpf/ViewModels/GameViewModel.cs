@@ -7,6 +7,7 @@ using System.Runtime.CompilerServices;
 using System.Windows.Input;
 using Media = System.Windows.Media;
 using Core = Roulette.Core;
+using System.Windows.Threading;
 
 namespace Roulette.Wpf.ViewModels;
 
@@ -149,6 +150,7 @@ public sealed class GameViewModel : INotifyPropertyChanged
     public ICommand ClearBetsCommand { get; }
     public ICommand SpinCommand { get; }
 
+    private readonly DispatcherTimer _resultDisplayTimer;
     public GameViewModel()
     {
         BuildCells();
@@ -177,10 +179,21 @@ public sealed class GameViewModel : INotifyPropertyChanged
 
         ClearBetsCommand = new RelayCommand(_ => ClearAllStakes(), _ => Bets.Any());
 
+        _resultDisplayTimer = new DispatcherTimer
+        {
+            Interval = TimeSpan.FromSeconds(4)
+        };
+        _resultDisplayTimer.Tick += (_, _) =>
+        {
+            _resultDisplayTimer.Stop();
+            HasSpinResult = false;
+        };
+
         SpinCommand = new RelayCommand(_ =>
         {
             if (IsSpinInProgress) return;
             RefreshBets();
+            _resultDisplayTimer.Stop();
             HasSpinResult = false;
             var spin = GenerateSpin();
             _pendingSpin = spin;
@@ -207,6 +220,8 @@ public sealed class GameViewModel : INotifyPropertyChanged
             AddRecentSpin(s.Number, s.Color);
             _pendingSpin = null;
             HasSpinResult = true;
+            _resultDisplayTimer.Stop();
+            _resultDisplayTimer.Start();
         }
 
         IsSpinInProgress = false;

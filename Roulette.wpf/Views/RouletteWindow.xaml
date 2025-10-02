@@ -26,6 +26,14 @@
         <SolidColorBrush x:Key="RouletteBlack" Color="#111111"/>
         <SolidColorBrush x:Key="RouletteGreen" Color="#0f9d58"/>
 
+        <!-- Background -->
+        <LinearGradientBrush x:Key="CasinoBackground" StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#0b2f1a" Offset="0"/>
+            <GradientStop Color="#14512a" Offset="0.58"/>
+            <GradientStop Color="#2f6a3e" Offset="0.78"/>
+            <GradientStop Color="#d1ad4f" Offset="1"/>
+        </LinearGradientBrush>
+
         <!-- Converters -->
         <conv:SpinColorToBrushConverter x:Key="SpinColorToBrushConverter"/>
         <conv:ValueToChipBrushConverter x:Key="ChipBrushConverter"/>
@@ -35,11 +43,23 @@
         <!-- Card wrapper used on right -->
         <Style x:Key="Card" TargetType="Border">
             <Setter Property="CornerRadius" Value="10"/>
-            <Setter Property="Background" Value="White"/>
-            <Setter Property="BorderBrush" Value="#DDD"/>
+            <Setter Property="Background">
+                <Setter.Value>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                        <GradientStop Color="#1a5d31" Offset="0"/>
+                        <GradientStop Color="#0f4721" Offset="1"/>
+                    </LinearGradientBrush>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="BorderBrush" Value="#d4af37"/>
             <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Padding" Value="12"/>
-            <Setter Property="Margin" Value="8"/>
+            <Setter Property="Padding" Value="10"/>
+            <Setter Property="Margin" Value="4"/>
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect Color="#66000000" BlurRadius="14" ShadowDepth="3" Direction="270"/>
+                </Setter.Value>
+            </Setter>
         </Style>
 
         <!-- ===== CHIP (casino-style) ===== -->
@@ -153,352 +173,374 @@
     </controls:MetroWindow.Resources>
 
     <!-- ===== LAYOUT ===== -->
-    <Grid Background="#F4F6F8">
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="12"/>
-            <ColumnDefinition Width="430"/>
-
-        </Grid.ColumnDefinitions>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition/>
-            <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
-
-        <TextBlock Grid.ColumnSpan="3"
-                   Text="European Roulette"
-                   FontSize="20" FontWeight="SemiBold"
-                   Margin="12,10,12,0"/>
-
-        <!-- ===== LEFT: REALISTIC TABLE ===== -->
-        <Border Grid.Row="1" Grid.Column="0"
-                Background="{DynamicResource Felt}" CornerRadius="14"
-                BorderBrush="{DynamicResource FeltBorder}" BorderThickness="2" Padding="10" Margin="8">
+    <Grid Background="{StaticResource CasinoBackground}">
+        <Border Background="#F4F6F8"
+                CornerRadius="18"
+                Margin="20"
+                Padding="12"
+                Opacity="0.97">
             <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="12"/>
+                    <ColumnDefinition Width="430"/>
+
+                </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
-                    <!-- numbers block -->
-                    <RowDefinition Height="10"/>
-                    <!-- gap -->
+                    <RowDefinition/>
                     <RowDefinition Height="Auto"/>
-                    <!-- dozens -->
-                    <RowDefinition Height="6"/>
-                    <RowDefinition Height="Auto"/>
-                    <!-- even money -->
-                    <RowDefinition Height="Auto"/>
-                    <!-- bankroll info -->
-                    <RowDefinition Height="Auto"/>
-                    <!-- result banner -->
                 </Grid.RowDefinitions>
 
-                <!-- ==== Numbers area ==== -->
-                <Grid Grid.Row="0">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="92"/>
-                        <!-- zero -->
-                        <ColumnDefinition Width="*" />
-                        <!-- 3x12 numbers -->
-                        <ColumnDefinition Width="120"/>
-                        <!-- 2 to 1 buttons -->
-                    </Grid.ColumnDefinitions>
+                <TextBlock Grid.ColumnSpan="3"
+                           Text="European Roulette"
+                           FontSize="20" FontWeight="SemiBold"
+                           Margin="12,10,12,0"/>
 
-                    <!-- Tall 0 -->
-                    <ItemsControl Grid.Column="0" ItemsSource="{Binding ZeroCell}"
-                                  ItemTemplate="{StaticResource ZeroCellTemplate}"/>
-
-                    <!-- 3 × 12 number grid -->
-                    <ItemsControl Grid.Column="1" ItemsSource="{Binding NumberCells}"
-                                  ItemTemplate="{StaticResource RectCellTemplate}">
-                        <ItemsControl.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <UniformGrid Rows="3" Columns="12"/>
-                            </ItemsPanelTemplate>
-                        </ItemsControl.ItemsPanel>
-                    </ItemsControl>
-
-                    <!-- Right 2 to 1 -->
-                    <ItemsControl Grid.Column="2" ItemsSource="{Binding OutsideColumns}"
-                                  ItemTemplate="{StaticResource ColumnCellTemplate}">
-                        <ItemsControl.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <UniformGrid Rows="3" Columns="1"/>
-                            </ItemsPanelTemplate>
-                        </ItemsControl.ItemsPanel>
-                    </ItemsControl>
-                </Grid>
-
-                <!-- ==== Dozens ==== -->
-                <ItemsControl Grid.Row="2" ItemsSource="{Binding OutsideDozens}"
-                              ItemTemplate="{StaticResource OutsideBetTemplate}">
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <UniformGrid Rows="1" Columns="3"/>
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-                </ItemsControl>
-
-                <!-- ==== Even-money ==== -->
-                <ItemsControl Grid.Row="4" ItemsSource="{Binding OutsideEvenMoney}"
-                              ItemTemplate="{StaticResource OutsideBetTemplate}">
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <UniformGrid Rows="1" Columns="6"/>
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-                </ItemsControl>
-                <!-- ==== Bankroll info ==== -->
-                <Border Grid.Row="5" Margin="0,18,0,0" Background="{DynamicResource FeltDark}" CornerRadius="10"
-         Padding="16" BorderThickness="1" BorderBrush="{DynamicResource FeltBorder}">
+                <!-- ===== LEFT: REALISTIC TABLE ===== -->
+                <Border Grid.Row="1" Grid.Column="0"
+                Background="{DynamicResource Felt}" CornerRadius="14"
+                BorderBrush="{DynamicResource FeltBorder}" BorderThickness="2" Padding="10" Margin="8">
                     <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
                         <Grid.RowDefinitions>
-                            <RowDefinition/>
+                            <RowDefinition Height="Auto"/>
+                            <!-- numbers block -->
+                            <RowDefinition Height="10"/>
+                            <!-- gap -->
+                            <RowDefinition Height="Auto"/>
+                            <!-- dozens -->
+                            <RowDefinition Height="6"/>
+                            <RowDefinition Height="Auto"/>
+                            <!-- even money -->
+                            <RowDefinition Height="Auto"/>
+                            <!-- bankroll info -->
+                            <RowDefinition Height="Auto"/>
+                            <!-- result banner -->
                         </Grid.RowDefinitions>
 
-                        <StackPanel Margin="0,0,24,0">
-                            <TextBlock Text="Balance" Foreground="#E6E6E6" FontSize="12"/>
-                            <TextBlock Text="{Binding Balance}" Foreground="White" FontWeight="SemiBold" FontSize="16"/>
-                        </StackPanel>
+                        <!-- ==== Numbers area ==== -->
+                        <Grid Grid.Row="0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="92"/>
+                                <!-- zero -->
+                                <ColumnDefinition Width="*" />
+                                <!-- 3x12 numbers -->
+                                <ColumnDefinition Width="120"/>
+                                <!-- 2 to 1 buttons -->
+                            </Grid.ColumnDefinitions>
 
-                        <StackPanel Grid.Column="1" Margin="0,0,24,0">
-                            <TextBlock Text="Table Stake" Foreground="#E6E6E6" FontSize="12"/>
-                            <TextBlock Text="{Binding TableStake}" Foreground="White" FontWeight="SemiBold" FontSize="16"/>
-                        </StackPanel>
+                            <!-- Tall 0 -->
+                            <ItemsControl Grid.Column="0" ItemsSource="{Binding ZeroCell}"
+                                  ItemTemplate="{StaticResource ZeroCellTemplate}"/>
 
-                        <StackPanel Grid.Column="2">
-                            <TextBlock Text="Available" Foreground="#E6E6E6" FontSize="12"/>
-                            <TextBlock Text="{Binding AvailableBalance}" Foreground="White" FontWeight="SemiBold" FontSize="16"/>
-                        </StackPanel>
-                    </Grid>
-                </Border>
+                            <!-- 3 × 12 number grid -->
+                            <ItemsControl Grid.Column="1" ItemsSource="{Binding NumberCells}"
+                                  ItemTemplate="{StaticResource RectCellTemplate}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <UniformGrid Rows="3" Columns="12"/>
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                            </ItemsControl>
 
-                <!-- ==== Win popup overlay ==== -->
-                <Border Grid.RowSpan="6"
+                            <!-- Right 2 to 1 -->
+                            <ItemsControl Grid.Column="2" ItemsSource="{Binding OutsideColumns}"
+                                  ItemTemplate="{StaticResource ColumnCellTemplate}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <UniformGrid Rows="3" Columns="1"/>
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                            </ItemsControl>
+                        </Grid>
+
+                        <!-- ==== Dozens ==== -->
+                        <ItemsControl Grid.Row="2" ItemsSource="{Binding OutsideDozens}"
+                              ItemTemplate="{StaticResource OutsideBetTemplate}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <UniformGrid Rows="1" Columns="3"/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                        </ItemsControl>
+
+                        <!-- ==== Even-money ==== -->
+                        <ItemsControl Grid.Row="4" ItemsSource="{Binding OutsideEvenMoney}"
+                              ItemTemplate="{StaticResource OutsideBetTemplate}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <UniformGrid Rows="1" Columns="6"/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                        </ItemsControl>
+                        <!-- ==== Bankroll info ==== -->
+                        <Border Grid.Row="5" Margin="0,18,0,0" Background="{DynamicResource FeltDark}" CornerRadius="10"
+         Padding="16" BorderThickness="1" BorderBrush="{DynamicResource FeltBorder}">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition/>
+                                </Grid.RowDefinitions>
+
+                                <StackPanel Margin="0,0,24,0">
+                                    <TextBlock Text="Balance" Foreground="#E6E6E6" FontSize="12"/>
+                                    <TextBlock Text="{Binding Balance}" Foreground="White" FontWeight="SemiBold" FontSize="16"/>
+                                </StackPanel>
+
+                                <StackPanel Grid.Column="1" Margin="0,0,24,0">
+                                    <TextBlock Text="Table Stake" Foreground="#E6E6E6" FontSize="12"/>
+                                    <TextBlock Text="{Binding TableStake}" Foreground="White" FontWeight="SemiBold" FontSize="16"/>
+                                </StackPanel>
+
+                                <StackPanel Grid.Column="2">
+                                    <TextBlock Text="Available" Foreground="#E6E6E6" FontSize="12"/>
+                                    <TextBlock Text="{Binding AvailableBalance}" Foreground="White" FontWeight="SemiBold" FontSize="16"/>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+
+                        <!-- ==== Win popup overlay ==== -->
+                        <Border Grid.RowSpan="6"
                         Panel.ZIndex="25"
                         HorizontalAlignment="Center"
                         VerticalAlignment="Bottom"
-                        Margin="0,0,0,28"
+                        Margin="0,0,0,-315"
                         Padding="30,26"
                         CornerRadius="22"
                         Visibility="{Binding HasSpinResult, Converter={StaticResource BoolToVis}}"
                         Opacity="0">
-                    <Border.Style>
-                        <Style TargetType="Border">
-                            <Setter Property="Background" Value="#FFFDE7"/>
-                            <Setter Property="BorderBrush" Value="#FFFFFFFF"/>
-                            <Setter Property="BorderThickness" Value="3"/>
-                            <Setter Property="Effect">
-                                <Setter.Value>
-                                    <DropShadowEffect BlurRadius="28" ShadowDepth="0" Color="#CC000000"/>
-                                </Setter.Value>
-                            </Setter>
-                            <Setter Property="RenderTransformOrigin" Value="0.5,0.5"/>
-                            <Setter Property="RenderTransform">
-                                <Setter.Value>
-                                    <ScaleTransform ScaleX="0.75" ScaleY="0.75"/>
-                                </Setter.Value>
-                            </Setter>
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding HasSpinResult}" Value="True">
-                                    <DataTrigger.EnterActions>
-                                        <BeginStoryboard>
-                                            <Storyboard>
-                                                <DoubleAnimation Storyboard.TargetProperty="RenderTransform.ScaleX"
+                            <Border.Style>
+                                <Style TargetType="Border">
+                                    <Setter Property="Background" Value="#FFFDE7"/>
+                                    <Setter Property="BorderBrush" Value="#FFFFFFFF"/>
+                                    <Setter Property="BorderThickness" Value="3"/>
+                                    <Setter Property="Effect">
+                                        <Setter.Value>
+                                            <DropShadowEffect BlurRadius="28" ShadowDepth="0" Color="#CC000000"/>
+                                        </Setter.Value>
+                                    </Setter>
+                                    <Setter Property="RenderTransformOrigin" Value="0.5,0.5"/>
+                                    <Setter Property="RenderTransform">
+                                        <Setter.Value>
+                                            <ScaleTransform ScaleX="0.75" ScaleY="0.75"/>
+                                        </Setter.Value>
+                                    </Setter>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding HasSpinResult}" Value="True">
+                                            <DataTrigger.EnterActions>
+                                                <BeginStoryboard>
+                                                    <Storyboard>
+                                                        <DoubleAnimation Storyboard.TargetProperty="RenderTransform.ScaleX"
                                                                  From="0.4" To="1"
                                                                  Duration="0:0:0.35">
-                                                    <DoubleAnimation.EasingFunction>
-                                                        <BackEase Amplitude="0.7" EasingMode="EaseOut"/>
-                                                    </DoubleAnimation.EasingFunction>
-                                                </DoubleAnimation>
-                                                <DoubleAnimation Storyboard.TargetProperty="RenderTransform.ScaleY"
+                                                            <DoubleAnimation.EasingFunction>
+                                                                <BackEase Amplitude="0.7" EasingMode="EaseOut"/>
+                                                            </DoubleAnimation.EasingFunction>
+                                                        </DoubleAnimation>
+                                                        <DoubleAnimation Storyboard.TargetProperty="RenderTransform.ScaleY"
                                                                  From="0.4" To="1"
                                                                  Duration="0:0:0.35">
-                                                    <DoubleAnimation.EasingFunction>
-                                                        <BackEase Amplitude="0.7" EasingMode="EaseOut"/>
-                                                    </DoubleAnimation.EasingFunction>
-                                                </DoubleAnimation>
-                                                <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                                                            <DoubleAnimation.EasingFunction>
+                                                                <BackEase Amplitude="0.7" EasingMode="EaseOut"/>
+                                                            </DoubleAnimation.EasingFunction>
+                                                        </DoubleAnimation>
+                                                        <DoubleAnimation Storyboard.TargetProperty="Opacity"
                                                                  From="0" To="1"
                                                                  Duration="0:0:0.3"/>
-                                            </Storyboard>
-                                        </BeginStoryboard>
-                                    </DataTrigger.EnterActions>
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </Border.Style>
-                    <StackPanel HorizontalAlignment="Center">
-                        <TextBlock Text="{Binding LastResultTitle}" FontSize="44" FontWeight="Black" Foreground="#111"
+                                                    </Storyboard>
+                                                </BeginStoryboard>
+                                            </DataTrigger.EnterActions>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
+                            <StackPanel HorizontalAlignment="Center">
+                                <TextBlock Text="{Binding LastResultTitle}" FontSize="44" FontWeight="Black" Foreground="#111"
                                    HorizontalAlignment="Center" TextAlignment="Center"/>
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,14,0,0">
-                            <TextBlock Text="Number" FontSize="22" FontWeight="SemiBold" Foreground="#111"
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,14,0,0">
+                                    <TextBlock Text="Number" FontSize="22" FontWeight="SemiBold" Foreground="#111"
                                        VerticalAlignment="Center" Margin="0,0,10,0"/>
-                            <Border Width="70" Height="70" CornerRadius="35" BorderThickness="3" BorderBrush="#FFFFFFFF"
+                                    <Border Width="70" Height="70" CornerRadius="35" BorderThickness="3" BorderBrush="#FFFFFFFF"
                                     Background="{Binding LastSpinColor, Converter={StaticResource SpinColorToBrushConverter}}">
-                                <Border.Effect>
-                                    <DropShadowEffect BlurRadius="18" ShadowDepth="0" Color="#88000000"/>
-                                </Border.Effect>
-                                <TextBlock Text="{Binding LastSpinNumber}" FontSize="30" FontWeight="Bold" Foreground="White"
+                                        <Border.Effect>
+                                            <DropShadowEffect BlurRadius="18" ShadowDepth="0" Color="#88000000"/>
+                                        </Border.Effect>
+                                        <TextBlock Text="{Binding LastSpinNumber}" FontSize="30" FontWeight="Bold" Foreground="White"
                                            HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                            </Border>
-                        </StackPanel>
-                        <TextBlock Text="RESULT" FontSize="20" FontWeight="Bold" Foreground="#4A148C"
+                                    </Border>
+                                </StackPanel>
+                                <TextBlock Text="RESULT" FontSize="20" FontWeight="Bold" Foreground="#4A148C"
                                    HorizontalAlignment="Center" Margin="0,18,0,0"/>
-                        <TextBlock Text="{Binding LastResultAmountDisplay}" FontSize="38" FontWeight="Black"
+                                <TextBlock Text="{Binding LastResultAmountDisplay}" FontSize="38" FontWeight="Black"
                                    Foreground="#111" HorizontalAlignment="Center"/>
-                    </StackPanel>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+                </Border>
+
+                <!-- ===== RIGHT COLUMN: WHEEL + BETS/RESULT + CHIPS ===== -->
+                <StackPanel Grid.Row="1" Grid.Column="2">
+
+                    <!-- ===== RIGHT: WHEEL (animated) ===== -->
+                    <Border Style="{StaticResource Card}">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="4"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            <Border Grid.Row="0" Background="#88d4af37" CornerRadius="6,6,0,0"/>
+                            <controlsLocal:RouletteWheelControl x:Name="WheelControl" Grid.Row="1"/>
+                        </Grid>
+                    </Border>
+
+                
+
+                    <!-- ===== Result + Spin ===== -->
+                    <Border Style="{StaticResource Card}">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="4"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            <Border Grid.Row="0" Background="#88d4af37" CornerRadius="6,6,0,0"/>
+                            <Grid Grid.Row="1">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition Width="200"/>
+                                </Grid.ColumnDefinitions>
+
+                                <StackPanel>
+                                    <TextBlock Text="Previus Result" FontWeight="SemiBold" FontSize="14" Foreground="#fdf5d7"/>
+                                    <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                                        <Border Width="72" Height="72" CornerRadius="36"
+                                        Background="{Binding LastSpinColor, Converter={StaticResource SpinColorToBrushConverter}}">
+                                            <TextBlock Text="{Binding LastSpinNumber}"
+                                               VerticalAlignment="Center" HorizontalAlignment="Center"
+                                               FontSize="20" FontWeight="Bold" Foreground="White"/>
+                                        </Border>
+                                        <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
+                                            <!--<TextBlock Text="{Binding LastSpinLabel}" FontSize="14"/>-->
+                                            <!--<TextBlock Text="{Binding LastNetResult, StringFormat=Net: {0:+#;-#;0}}"
+                                               FontSize="16" FontWeight="SemiBold"/>-->
+                                        </StackPanel>
+                                    </StackPanel>
+                                </StackPanel>
+
+                                <StackPanel Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Center">
+                                    <Button Content="Spin" Width="160" Height="44" Command="{Binding SpinCommand}" Margin="0,0,0,4"/>
+                                    <Button Content="Clear Bets" Width="160" Margin="0,4,0,0" Command="{Binding ClearBetsCommand}"/>
+                                    <!--<StackPanel Orientation="Horizontal" Margin="0,12,0,0" VerticalAlignment="Center">
+                                <CheckBox Content="Use seed"
+                                          IsChecked="{Binding UseSeed}"
+                                          VerticalAlignment="Center"
+                                          Margin="0,0,8,0"/>
+                                <TextBox Width="100"
+                                         Height="26"
+                                         VerticalContentAlignment="Center"
+                                         IsEnabled="{Binding UseSeed}"
+                                         Text="{Binding SeedText, UpdateSourceTrigger=PropertyChanged}"/>
+                            </StackPanel>-->
+                                </StackPanel>
+                            </Grid>
+                        </Grid>
+                    </Border>
+
+                    <!-- ===== Chip picker ===== -->
+                    <Border Style="{StaticResource Card}">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="4"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            <Border Grid.Row="0" Background="#88d4af37" CornerRadius="6,6,0,0"/>
+                            <StackPanel Grid.Row="1">
+                                <TextBlock Text="Chips" Margin="0,0,0,4" FontWeight="SemiBold" Foreground="#fdf5d7"/>
+                                <ListBox ItemsSource="{Binding ChipValues}"
+                                 SelectedItem="{Binding SelectedChipValue, Mode=TwoWay}"
+                                 BorderThickness="0" Background="Transparent">
+                                    <ListBox.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <WrapPanel/>
+                                        </ItemsPanelTemplate>
+                                    </ListBox.ItemsPanel>
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <Grid Width="34" Height="34" Margin="0,0,6,6">
+                                                <Ellipse Fill="{Binding Converter={StaticResource ChipBrushConverter}}"
+                                                 Stroke="White" StrokeThickness="4" StrokeDashArray="1,2"/>
+                                                <Ellipse Width="22" Height="22" Fill="White" Opacity="0.92"/>
+                                                <TextBlock Text="{Binding}" FontWeight="Bold" FontSize="12"
+                                                   HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="#222"/>
+                                                <Grid.Effect>
+                                                    <DropShadowEffect BlurRadius="6" ShadowDepth="0" Color="#55000000"/>
+                                                </Grid.Effect>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+                                    <ListBox.ItemContainerStyle>
+                                        <Style TargetType="ListBoxItem">
+                                            <Setter Property="Padding" Value="0"/>
+                                            <Setter Property="BorderThickness" Value="0"/>
+                                            <Setter Property="Background" Value="Transparent"/>
+                                            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+                                            <Setter Property="Cursor" Value="Hand"/>
+                                            <Setter Property="ToolTip" Value="{Binding}"/>
+                                            <Style.Triggers>
+                                                <Trigger Property="IsSelected" Value="True">
+                                                    <Setter Property="Effect">
+                                                        <Setter.Value>
+                                                            <DropShadowEffect BlurRadius="8" ShadowDepth="0" Color="#88000000"/>
+                                                        </Setter.Value>
+                                                    </Setter>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </ListBox.ItemContainerStyle>
+                                </ListBox>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+
+                </StackPanel>
+                <!-- ===== RECENT NUMBERS ===== -->
+                <Border Grid.Row="2" Grid.ColumnSpan="1" Style="{StaticResource Card}">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="4"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <Border Grid.Row="0" Background="#88d4af37" CornerRadius="6,6,0,0"/>
+                        <StackPanel Grid.Row="1">
+                            <TextBlock Text="Recent Numbers" FontWeight="SemiBold" FontSize="14" Foreground="#fdf5d7"/>
+                            <ItemsControl ItemsSource="{Binding RecentSpins}" Margin="0,6,0,0">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <StackPanel Orientation="Horizontal"/>
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Margin="0,0,10,0" HorizontalAlignment="Center">
+                                            <Border Width="46" Height="46" CornerRadius="23"
+                                            Background="{Binding Color, Converter={StaticResource SpinColorToBrushConverter}}"
+                                            HorizontalAlignment="Center">
+                                                <TextBlock Text="{Binding Number}" FontSize="18" FontWeight="Bold" Foreground="White"
+                                                   VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                            </Border>
+                                            <TextBlock Text="{Binding ColorLabel}" FontSize="11" Margin="0,4,0,0"
+                                               HorizontalAlignment="Center" Foreground="#f9f7ea"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </Grid>
                 </Border>
             </Grid>
-        </Border>
-
-        <!-- ===== RIGHT COLUMN: WHEEL + BETS/RESULT + CHIPS ===== -->
-        <StackPanel Grid.Row="1" Grid.Column="2">
-
-            <!-- ===== RIGHT: WHEEL (animated) ===== -->
-            <Border Style="{StaticResource Card}">
-                <controlsLocal:RouletteWheelControl x:Name="WheelControl"/>
-            </Border>
-
-            <!-- ===== Bets summary ===== -->
-            <!--<Border Style="{StaticResource Card}">
-                <StackPanel>
-                    <TextBlock Text="Current Bets" FontWeight="SemiBold" FontSize="14"/>
-                    <ListView ItemsSource="{Binding Bets}" Margin="0,8,0,0" Height="220">
-                        <ListView.View>
-                            <GridView>
-                                <GridViewColumn Header="Type"   Width="140" DisplayMemberBinding="{Binding Type}"/>
-                                <GridViewColumn Header="Details" Width="220" DisplayMemberBinding="{Binding Description}"/>
-                                <GridViewColumn Header="Stake"   Width="80"  DisplayMemberBinding="{Binding Stake}"/>
-                            </GridView>
-                        </ListView.View>
-                    </ListView>
-                </StackPanel>
-            </Border>-->
-
-            <!-- ===== Result + Spin ===== -->
-            <Border Style="{StaticResource Card}">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition/>
-                        <ColumnDefinition Width="200"/>
-                    </Grid.ColumnDefinitions>
-
-                    <StackPanel>
-                        <TextBlock Text="Previus Result" FontWeight="SemiBold" FontSize="14"/>
-                        <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
-                            <Border Width="72" Height="72" CornerRadius="36"
-                                    Background="{Binding LastSpinColor, Converter={StaticResource SpinColorToBrushConverter}}">
-                                <TextBlock Text="{Binding LastSpinNumber}"
-                                           VerticalAlignment="Center" HorizontalAlignment="Center"
-                                           FontSize="20" FontWeight="Bold" Foreground="White"/>
-                            </Border>
-                            <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
-                                <!--<TextBlock Text="{Binding LastSpinLabel}" FontSize="14"/>-->
-                                <!--<TextBlock Text="{Binding LastNetResult, StringFormat=Net: {0:+#;-#;0}}"
-                                           FontSize="16" FontWeight="SemiBold"/>-->
-                            </StackPanel>
-                        </StackPanel>
-                    </StackPanel>
-
-                    <StackPanel Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Center">
-                        <Button Content="Spin" Width="160" Height="44" Command="{Binding SpinCommand}"/>
-                        <Button Content="Clear Bets" Width="160" Margin="0,8,0,0" Command="{Binding ClearBetsCommand}"/>
-                        <!--<StackPanel Orientation="Horizontal" Margin="0,12,0,0" VerticalAlignment="Center">
-                            <CheckBox Content="Use seed"
-                                      IsChecked="{Binding UseSeed}"
-                                      VerticalAlignment="Center"
-                                      Margin="0,0,8,0"/>
-                            <TextBox Width="100"
-                                     Height="26"
-                                     VerticalContentAlignment="Center"
-                                     IsEnabled="{Binding UseSeed}"
-                                     Text="{Binding SeedText, UpdateSourceTrigger=PropertyChanged}"/>
-                        </StackPanel>-->
-                    </StackPanel>
-                </Grid>
-            </Border>
-
-            <!-- ===== Chip picker ===== -->
-            <Border Style="{StaticResource Card}">
-                <StackPanel>
-                    <TextBlock Text="Chips" Margin="0,0,0,6" FontWeight="SemiBold"/>
-                    <ListBox ItemsSource="{Binding ChipValues}"
-                             SelectedItem="{Binding SelectedChipValue, Mode=TwoWay}"
-                             BorderThickness="0" Background="Transparent">
-                        <ListBox.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <WrapPanel/>
-                            </ItemsPanelTemplate>
-                        </ListBox.ItemsPanel>
-                        <ListBox.ItemTemplate>
-                            <DataTemplate>
-                                <Grid Width="34" Height="34" Margin="0,0,8,8">
-                                    <Ellipse Fill="{Binding Converter={StaticResource ChipBrushConverter}}"
-                                             Stroke="White" StrokeThickness="4" StrokeDashArray="1,2"/>
-                                    <Ellipse Width="22" Height="22" Fill="White" Opacity="0.92"/>
-                                    <TextBlock Text="{Binding}" FontWeight="Bold" FontSize="12"
-                                               HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="#222"/>
-                                    <Grid.Effect>
-                                        <DropShadowEffect BlurRadius="6" ShadowDepth="0" Color="#55000000"/>
-                                    </Grid.Effect>
-                                </Grid>
-                            </DataTemplate>
-                        </ListBox.ItemTemplate>
-                        <ListBox.ItemContainerStyle>
-                            <Style TargetType="ListBoxItem">
-                                <Setter Property="Padding" Value="0"/>
-                                <Setter Property="BorderThickness" Value="0"/>
-                                <Setter Property="Background" Value="Transparent"/>
-                                <Setter Property="HorizontalContentAlignment" Value="Center"/>
-                                <Setter Property="Cursor" Value="Hand"/>
-                                <Setter Property="ToolTip" Value="{Binding}"/>
-                                <Style.Triggers>
-                                    <Trigger Property="IsSelected" Value="True">
-                                        <Setter Property="Effect">
-                                            <Setter.Value>
-                                                <DropShadowEffect BlurRadius="8" ShadowDepth="0" Color="#88000000"/>
-                                            </Setter.Value>
-                                        </Setter>
-                                    </Trigger>
-                                </Style.Triggers>
-                            </Style>
-                        </ListBox.ItemContainerStyle>
-                    </ListBox>
-                </StackPanel>
-            </Border>
-
-        </StackPanel>
-        <!-- ===== RECENT NUMBERS ===== -->
-        <Border Grid.Row="2" Grid.ColumnSpan="1" Style="{StaticResource Card}">
-            <StackPanel>
-                <TextBlock Text="Recent Numbers" FontWeight="SemiBold" FontSize="14"/>
-                <ItemsControl ItemsSource="{Binding RecentSpins}" Margin="0,8,0,0">
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <StackPanel Orientation="Horizontal"/>
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <StackPanel Margin="0,0,12,0" HorizontalAlignment="Center">
-                                <Border Width="46" Height="46" CornerRadius="23"
-                                        Background="{Binding Color, Converter={StaticResource SpinColorToBrushConverter}}"
-                                        HorizontalAlignment="Center">
-                                    <TextBlock Text="{Binding Number}" FontSize="18" FontWeight="Bold" Foreground="White"
-                                               VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                                </Border>
-                                <TextBlock Text="{Binding ColorLabel}" FontSize="11" Margin="0,6,0,0"
-                                           HorizontalAlignment="Center" Foreground="#555"/>
-                            </StackPanel>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
-            </StackPanel>
         </Border>
     </Grid>
 </controls:MetroWindow>
