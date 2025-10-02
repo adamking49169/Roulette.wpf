@@ -225,9 +225,10 @@ public partial class RouletteWheelControl : UserControl
             var (tx, ty) = Polar(cx, cy, PocketCenterRadius + 10, midAngle);
             var tb = new TextBlock
             {
+                Text = num.ToString(),
                 Foreground = new SolidColorBrush(ColorFromHex("#ffe6c6")),
                 FontWeight = FontWeights.Bold,
-                FontSize = 15,
+                FontSize = 18,
                 RenderTransform = new RotateTransform(midAngle + 90, 0, 0),
                 Effect = new DropShadowEffect
                 {

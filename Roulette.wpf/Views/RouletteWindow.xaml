@@ -308,27 +308,27 @@
                     <ColumnDefinition/>
                 </Grid.ColumnDefinitions>
 
-                <Border Style="{StaticResource Card}">
+                <Border Style="{StaticResource Card}" Grid.ColumnSpan="2" Margin="8,8,20,8">
                     <Grid>
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition/>
+                            <ColumnDefinition />
                             <ColumnDefinition Width="200"/>
                         </Grid.ColumnDefinitions>
 
                         <StackPanel>
                             <TextBlock Text="Result" FontWeight="SemiBold" FontSize="14"/>
                             <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                                <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
+                                    <!--<TextBlock Text="{Binding LastSpinLabel}" FontSize="14"/>-->
+                                    <!--<TextBlock Text="{Binding LastNetResult, StringFormat=Net: {0:+#;-#;0}}"
+                                               FontSize="16" FontWeight="SemiBold"/>-->
+                                </StackPanel>
                                 <Border Width="72" Height="72" CornerRadius="36"
                                         Background="{Binding LastSpinColor, Converter={StaticResource SpinColorToBrushConverter}}">
                                     <TextBlock Text="{Binding LastSpinNumber}"
                                                VerticalAlignment="Center" HorizontalAlignment="Center"
                                                FontSize="20" FontWeight="Bold" Foreground="White"/>
                                 </Border>
-                                <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
-                                    <!--<TextBlock Text="{Binding LastSpinLabel}" FontSize="14"/>-->
-                                    <TextBlock Text="{Binding LastNetResult, StringFormat=Net: {0:+#;-#;0}}"
-                                               FontSize="16" FontWeight="SemiBold"/>
-                                </StackPanel>
                             </StackPanel>
                         </StackPanel>
 
