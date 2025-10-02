@@ -44,6 +44,7 @@ public partial class RouletteWheelControl : UserControl
     private const double BallOuterRadius = 300;
     private const double PocketCenterRadius = 240;
     private const double PocketInnerRadius = 210;
+    private const double DividerInnerRadius = 165;
     private const double BallRestRadius = PocketInnerRadius + 16;
     public RouletteWheelControl()
     {
@@ -145,14 +146,19 @@ public partial class RouletteWheelControl : UserControl
         }
         if (_captured && _ballRadius <= BallRestRadius)
         {
-            _ballRadVel = 0;
             _ballRadius = BallRestRadius;
+            _wheelVel = 0;
+            _ballRadVel = 0;
+            _ballVel = 0;
+            _timer.Stop();
+            _spinning = false;
+            SpinCompleted?.Invoke(this, EventArgs.Empty);
         }
         if (_captured)
         {
             _ballAngle = NormalizeDeg(_wheelAngle + _targetPocketAngle);
         }
-        if (_captured && Math.Abs(_wheelVel) < 8 && Math.Abs(_ballRadVel) < 5)
+        if (_captured && Math.Abs(_wheelVel) < 1e-3 && Math.Abs(_ballRadVel) < 1e-3 && _timer.IsEnabled)
         {
             _timer.Stop();
             _spinning = false;
@@ -195,8 +201,7 @@ public partial class RouletteWheelControl : UserControl
             slot.Opacity = 0.9;
             PocketsLayer.Children.Add(slot);
 
-            var divider = CreateRadialLine(cx, cy, PocketInnerRadius - 4, PocketCenterRadius + 34, startAngle);
-            divider.Stroke = new SolidColorBrush(ColorFromHex("#44000000"));
+           var divider = CreateRadialLine(cx, cy, DividerInnerRadius, PocketCenterRadius + 34, startAngle); divider.Stroke = new SolidColorBrush(ColorFromHex("#44000000"));
             divider.StrokeThickness = 1.6;
             divider.StrokeStartLineCap = PenLineCap.Round;
             divider.StrokeEndLineCap = PenLineCap.Round;

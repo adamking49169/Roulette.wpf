@@ -34,7 +34,7 @@
                 </Canvas>
 
                 <Grid HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,12,0,0">
-                    <Polygon Points="0,0 14,0 7,12" Fill="White" Stroke="#444" StrokeThickness="1"/>
+                    <!--<Polygon Points="0,0 14,0 7,12" Fill="White" Stroke="#444" StrokeThickness="1"/>-->
                 </Grid>
             </Grid>
         </Viewbox>
