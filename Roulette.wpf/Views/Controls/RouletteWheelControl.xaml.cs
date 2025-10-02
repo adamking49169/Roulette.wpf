@@ -246,6 +246,73 @@ public partial class RouletteWheelControl : UserControl
             PocketsLayer.Children.Add(tb);
         }
 
+        const int deflectorCount = 12;
+        double deflectorRadius = PocketInnerRadius - 22;
+        var deflectorFallback = new LinearGradientBrush
+        {
+            StartPoint = new Point(0.5, 0),
+            EndPoint = new Point(0.5, 1),
+            GradientStops = new GradientStopCollection
+            {
+                new GradientStop(ColorFromHex("#f3f6f8"), 0),
+                new GradientStop(ColorFromHex("#c2c7cc"), 0.45),
+                new GradientStop(ColorFromHex("#5a6065"), 1)
+            }
+        };
+        var boltFallback = new RadialGradientBrush
+        {
+            GradientOrigin = new Point(0.45, 0.4),
+            RadiusX = 0.9,
+            RadiusY = 0.9,
+            GradientStops = new GradientStopCollection
+            {
+                new GradientStop(ColorFromHex("#ffffff"), 0),
+                new GradientStop(ColorFromHex("#c6cbd1"), 0.55),
+                new GradientStop(ColorFromHex("#6a7076"), 1)
+            }
+        };
+
+        Brush deflectorBrush = CloneResourceBrush("MetallicBrush", deflectorFallback);
+        Brush boltBrush = CloneResourceBrush("HubCapBrush", boltFallback);
+
+        for (int d = 0; d < deflectorCount; d++)
+        {
+            double placeAngle = d * (360.0 / deflectorCount) - 90.0;
+
+            var deflector = new Rectangle
+            {
+                Width = 12,
+                Height = 36,
+                RadiusX = 4,
+                RadiusY = 4,
+                Fill = deflectorBrush.CloneCurrentValue(),
+                Stroke = new SolidColorBrush(ColorFromHex("#2c3033")),
+                StrokeThickness = 0.8,
+                RenderTransformOrigin = new Point(0.5, 0.5),
+                RenderTransform = new RotateTransform(placeAngle + 90)
+            };
+
+            var (px, py) = Polar(cx, cy, deflectorRadius, placeAngle);
+            Canvas.SetLeft(deflector, px - deflector.Width / 2);
+            Canvas.SetTop(deflector, py - deflector.Height / 2);
+            PocketsLayer.Children.Add(deflector);
+
+            var bolt = new Ellipse
+            {
+                Width = 7,
+                Height = 7,
+                Fill = boltBrush.CloneCurrentValue(),
+                Stroke = new SolidColorBrush(ColorFromHex("#3b3f44")),
+                StrokeThickness = 0.6
+            };
+
+            var (bx, by) = Polar(cx, cy, deflectorRadius - 16, placeAngle);
+            Canvas.SetLeft(bolt, bx - bolt.Width / 2);
+            Canvas.SetTop(bolt, by - bolt.Height / 2);
+            PocketsLayer.Children.Add(bolt);
+        }
+
+
         var ring = new Ellipse
         {
             Width = PocketCenterRadius * 2 + 4,
@@ -363,6 +430,12 @@ public partial class RouletteWheelControl : UserControl
             "RouletteGreen" => new SolidColorBrush(ColorFromHex("#0f9d58")),
             _ => fallback
         };
+    }
+
+    private Brush CloneResourceBrush(string key, Brush fallback)
+    {
+        var brush = FindResourceOrDefault(key, fallback);
+        return brush.CloneCurrentValue();
     }
 
     private Brush SlotBrushForNumber(int number)

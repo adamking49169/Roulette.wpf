@@ -44,6 +44,7 @@ public sealed class GameViewModel : INotifyPropertyChanged
             _balance = value;
             Raise();
             Raise(nameof(AvailableBalance));
+            CommandManager.InvalidateRequerySuggested();
         }
     }
 
@@ -57,6 +58,7 @@ public sealed class GameViewModel : INotifyPropertyChanged
             _tableStake = value;
             Raise();
             Raise(nameof(AvailableBalance));
+            CommandManager.InvalidateRequerySuggested();
         }
     }
 
@@ -150,6 +152,8 @@ public sealed class GameViewModel : INotifyPropertyChanged
     public ICommand AddStakeCommand { get; }
     public ICommand ClearBetsCommand { get; }
     public ICommand SpinCommand { get; }
+    public ICommand DoubleBetsCommand { get; }
+    public ICommand DoubleAndSpinCommand { get; }
 
     private readonly DispatcherTimer _resultDisplayTimer;
     public GameViewModel()
@@ -190,17 +194,17 @@ public sealed class GameViewModel : INotifyPropertyChanged
             HasSpinResult = false;
         };
 
-        SpinCommand = new RelayCommand(_ =>
+        SpinCommand = new RelayCommand(_ => StartSpin(), _ => CanStartSpin());
+
+        DoubleBetsCommand = new RelayCommand(_ => TryDoubleBets(), _ => CanDoubleBets());
+
+        DoubleAndSpinCommand = new RelayCommand(_ =>
         {
-            if (IsSpinInProgress) return;
-            RefreshBets();
-            _resultDisplayTimer.Stop();
-            HasSpinResult = false;
-            var spin = GenerateSpin();
-            _pendingSpin = spin;
-            IsSpinInProgress = true;
-            SpinRequested?.Invoke(spin.Number);
-        }, _ => !IsSpinInProgress);
+            if (TryDoubleBets())
+            {
+                StartSpin();
+            }
+        }, _ => CanDoubleBets());
 
     }
     // Visual spin plumbing
@@ -227,6 +231,22 @@ public sealed class GameViewModel : INotifyPropertyChanged
 
         IsSpinInProgress = false;
     }
+
+    bool CanStartSpin() => !IsSpinInProgress;
+
+    void StartSpin()
+    {
+        if (!CanStartSpin()) return;
+
+        RefreshBets();
+        _resultDisplayTimer.Stop();
+        HasSpinResult = false;
+        var spin = GenerateSpin();
+        _pendingSpin = spin;
+        IsSpinInProgress = true;
+        SpinRequested?.Invoke(spin.Number);
+    }
+
     public sealed class SpinHistoryEntry
     {
         public int Number { get; }
@@ -400,6 +420,38 @@ public sealed class GameViewModel : INotifyPropertyChanged
         foreach (var c in OutsideDozens) c.Reset();
         foreach (var c in OutsideColumns) c.Reset();
         RefreshBets();
+    }
+
+    bool CanDoubleBets() => TableStake > 0 && TableStake <= AvailableBalance && !IsSpinInProgress;
+
+    bool TryDoubleBets()
+    {
+        if (!CanDoubleBets())
+            return false;
+
+        var cells = ZeroCell.Concat(NumberCells)
+                             .Concat(OutsideEvenMoney)
+                             .Concat(OutsideDozens)
+                             .Concat(OutsideColumns);
+
+        foreach (var cell in cells)
+        {
+            if (cell.Stake <= 0)
+                continue;
+
+            var existingChipValues = cell.Chips.Select(chip => chip.Value).ToList();
+            foreach (var value in existingChipValues)
+            {
+                cell.AddChip(new ChipView(value, GetChipBrushForValue(value)));
+            }
+
+            int additionalStake = existingChipValues.Sum();
+            if (additionalStake > 0)
+                cell.Stake += additionalStake;
+        }
+
+        CommandManager.InvalidateRequerySuggested();
+        return true;
     }
 
     CellView? FindCell(string key) =>

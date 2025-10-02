@@ -7,34 +7,70 @@
              d:DesignWidth="700"
              d:DesignHeight="700">
     <UserControl.Resources>
-        <RadialGradientBrush x:Key="OuterRimBrush" GradientOrigin="0.5,0.4" RadiusX="0.7" RadiusY="0.7">
-            <GradientStop Color="#3c4a4f" Offset="0"/>
-            <GradientStop Color="#10181d" Offset="0.7"/>
-            <GradientStop Color="#060809" Offset="1"/>
+        <RadialGradientBrush x:Key="OuterRimBrush" GradientOrigin="0.45,0.4" RadiusX="0.72" RadiusY="0.72">
+            <GradientStop Color="#59381c" Offset="0"/>
+            <GradientStop Color="#3c2210" Offset="0.45"/>
+            <GradientStop Color="#1f1208" Offset="1"/>
         </RadialGradientBrush>
 
-        <RadialGradientBrush x:Key="InnerRimBrush" GradientOrigin="0.55,0.45" RadiusX="0.9" RadiusY="0.9">
-            <GradientStop Color="#555e62" Offset="0"/>
-            <GradientStop Color="#1f262b" Offset="0.6"/>
-            <GradientStop Color="#0a0d0f" Offset="1"/>
+        <RadialGradientBrush x:Key="OuterMetalRimBrush" GradientOrigin="0.55,0.48" RadiusX="0.85" RadiusY="0.85">
+            <GradientStop Color="#f9f9f9" Offset="0"/>
+            <GradientStop Color="#c9ccd0" Offset="0.42"/>
+            <GradientStop Color="#646a70" Offset="1"/>
         </RadialGradientBrush>
 
         <LinearGradientBrush x:Key="WoodInlayBrush" StartPoint="0,0" EndPoint="1,1">
-            <GradientStop Color="#6a3b16" Offset="0"/>
-            <GradientStop Color="#a8672a" Offset="0.4"/>
-            <GradientStop Color="#4a240c" Offset="1"/>
+            <GradientStop Color="#8b4c1e" Offset="0"/>
+            <GradientStop Color="#d08a3a" Offset="0.4"/>
+            <GradientStop Color="#4d260c" Offset="1"/>
         </LinearGradientBrush>
 
         <LinearGradientBrush x:Key="InnerWoodInlayBrush" StartPoint="0,1" EndPoint="1,0">
-            <GradientStop Color="#7b4520" Offset="0"/>
-            <GradientStop Color="#c17b37" Offset="0.5"/>
-            <GradientStop Color="#5a2a11" Offset="1"/>
+            <GradientStop Color="#a66a33" Offset="0"/>
+            <GradientStop Color="#f0b76b" Offset="0.55"/>
+            <GradientStop Color="#613213" Offset="1"/>
+        </LinearGradientBrush>
+
+        <RadialGradientBrush x:Key="InnerRimBrush" GradientOrigin="0.55,0.45" RadiusX="0.9" RadiusY="0.9">
+            <GradientStop Color="#636d75" Offset="0"/>
+            <GradientStop Color="#2a3137" Offset="0.6"/>
+            <GradientStop Color="#0b0e11" Offset="1"/>
+        </RadialGradientBrush>
+
+        <RadialGradientBrush x:Key="BallTrackBrush" GradientOrigin="0.5,0.35" RadiusX="0.8" RadiusY="0.8">
+            <GradientStop Color="#f4f3ef" Offset="0"/>
+            <GradientStop Color="#dcd4c3" Offset="0.45"/>
+            <GradientStop Color="#b69a73" Offset="0.75"/>
+            <GradientStop Color="#785a30" Offset="1"/>
+        </RadialGradientBrush>
+
+        <RadialGradientBrush x:Key="NumberBedBrush" GradientOrigin="0.48,0.48" RadiusX="0.7" RadiusY="0.7">
+            <GradientStop Color="#3d1309" Offset="0"/>
+            <GradientStop Color="#250b04" Offset="0.75"/>
+            <GradientStop Color="#0c0402" Offset="1"/>
+        </RadialGradientBrush>
+
+        <LinearGradientBrush x:Key="TrackEdgeHighlight" StartPoint="0.5,0" EndPoint="0.5,1">
+            <GradientStop Color="#ffffff" Offset="0"/>
+            <GradientStop Color="#ffffff00" Offset="1"/>
+        </LinearGradientBrush>
+
+        <LinearGradientBrush x:Key="MetallicBrush" StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#f7f7f7" Offset="0"/>
+            <GradientStop Color="#b7bcc2" Offset="0.45"/>
+            <GradientStop Color="#5a5f63" Offset="1"/>
         </LinearGradientBrush>
 
         <RadialGradientBrush x:Key="HubBrush" GradientOrigin="0.45,0.45" RadiusX="0.9" RadiusY="0.9">
-            <GradientStop Color="#5f666c" Offset="0"/>
-            <GradientStop Color="#2a2f34" Offset="0.6"/>
-            <GradientStop Color="#0f1113" Offset="1"/>
+            <GradientStop Color="#d9dbdf" Offset="0"/>
+            <GradientStop Color="#7f868d" Offset="0.55"/>
+            <GradientStop Color="#1a1d20" Offset="1"/>
+        </RadialGradientBrush>
+
+        <RadialGradientBrush x:Key="HubCapBrush" GradientOrigin="0.52,0.48" RadiusX="0.9" RadiusY="0.9">
+            <GradientStop Color="#ffffff" Offset="0"/>
+            <GradientStop Color="#d0d4d8" Offset="0.35"/>
+            <GradientStop Color="#7a7f85" Offset="1"/>
         </RadialGradientBrush>
     </UserControl.Resources>
     <Grid Background="#111">
@@ -43,18 +79,32 @@
                 <Grid.Effect>
                     <DropShadowEffect BlurRadius="20" Color="#66000000" ShadowDepth="10" Direction="315"/>
                 </Grid.Effect>
-                <Ellipse Width="700" Height="700" Fill="{StaticResource OuterRimBrush}" Stroke="#0a1a10" StrokeThickness="6"/>
+                <Ellipse Width="700" Height="700" Fill="{StaticResource OuterRimBrush}" Stroke="#0a1a10" StrokeThickness="5"/>
+                <Ellipse Width="660" Height="660" Fill="{StaticResource OuterMetalRimBrush}" Stroke="#1d1f22" StrokeThickness="3"/>
+                <Ellipse Width="640" Height="640" Fill="{StaticResource WoodInlayBrush}" Stroke="#1a0d05" StrokeThickness="2"/>
                 <Grid x:Name="WheelRoot" Width="620" Height="620">
                     <Grid.RenderTransform>
                         <RotateTransform x:Name="WheelRotate" Angle="0" CenterX="310" CenterY="310"/>
                     </Grid.RenderTransform>
 
-                    <Ellipse Width="620" Height="620" Fill="{StaticResource InnerRimBrush}" Stroke="#1a2024" StrokeThickness="4"/>
+                    <Ellipse Width="620" Height="620" Fill="{StaticResource InnerRimBrush}" Stroke="#1a2024" StrokeThickness="3"/>
+                    <Ellipse Width="560" Height="560" Fill="{StaticResource BallTrackBrush}" Stroke="#d4c09f" StrokeThickness="2">
+                        <Ellipse.Effect>
+                            <DropShadowEffect BlurRadius="12" ShadowDepth="0" Color="#33000000"/>
+                        </Ellipse.Effect>
+                    </Ellipse>
+                    <Ellipse Width="560" Height="560" Stroke="{StaticResource TrackEdgeHighlight}" StrokeThickness="12" Opacity="0.3"/>
+                    <Ellipse Width="548" Height="548" Stroke="White" StrokeThickness="1.2" Opacity="0.35"/>
+                    <Ellipse Width="520" Height="520" Fill="{StaticResource NumberBedBrush}" Stroke="#1b0400" StrokeThickness="2"/>
                     <Canvas x:Name="PocketsLayer" Width="620" Height="620"/>
                     <Ellipse Width="480" Height="480" Fill="{StaticResource WoodInlayBrush}" Stroke="#2c1a0c" StrokeThickness="3"/>
-                    <Ellipse Width="330" Height="330" Fill="{StaticResource InnerWoodInlayBrush}" Stroke="#3a2314" StrokeThickness="2"/>
-                    <Ellipse Width="125" Height="125" Fill="{StaticResource HubBrush}" Stroke="#92999f" StrokeThickness="3"/>
-                    <Ellipse Width="18" Height="18" Fill="#dcdcdc" Stroke="#2a2d30" StrokeThickness="1.5"/>
+                    <Ellipse Width="340" Height="340" Fill="{StaticResource InnerWoodInlayBrush}" Stroke="#3a2314" StrokeThickness="2"/>
+                    <Grid Width="260" Height="260">
+                        <Ellipse Fill="{StaticResource HubBrush}" Stroke="#2d3035" StrokeThickness="2"/>
+                        <Ellipse Width="220" Height="220" Fill="{StaticResource HubCapBrush}" Stroke="#6a7076" StrokeThickness="1.5"/>
+                        <Ellipse Width="150" Height="150" Fill="{StaticResource HubBrush}" Stroke="#b6bcc1" StrokeThickness="2"/>
+                        <Ellipse Width="18" Height="18" Fill="#f4f4f4" Stroke="#2a2d30" StrokeThickness="1.5"/>
+                    </Grid>
                 </Grid>
 
                 <Canvas x:Name="BallLayer" Width="700" Height="700" IsHitTestVisible="False">
