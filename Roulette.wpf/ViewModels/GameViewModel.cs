@@ -61,7 +61,17 @@ public sealed class GameViewModel : INotifyPropertyChanged
     public int AvailableBalance => Balance - TableStake;
     // ===== Result =====
     int _lastSpinNumber;
-    public int LastSpinNumber { get => _lastSpinNumber; private set { _lastSpinNumber = value; Raise(); Raise(nameof(LastSpinLabel)); } }
+    public int LastSpinNumber
+    {
+        get => _lastSpinNumber;
+        private set
+        {
+            if (_lastSpinNumber == value) return;
+            _lastSpinNumber = value;
+            Raise();
+            Raise(nameof(LastSpinLabel));
+        }
+    }
 
     Core.Color _lastSpinColor = Core.Color.Green;
     public Core.Color LastSpinColor { get => _lastSpinColor; private set { _lastSpinColor = value; Raise(); } }
@@ -69,7 +79,48 @@ public sealed class GameViewModel : INotifyPropertyChanged
     public string LastSpinLabel => $"Landed on {LastSpinNumber} ({LastSpinColor})";
 
     int _lastNetResult;
-    public int LastNetResult { get => _lastNetResult; private set { _lastNetResult = value; Raise(); } }
+    public int LastNetResult
+    {
+        get => _lastNetResult;
+        private set
+        {
+            if (_lastNetResult == value) return;
+            _lastNetResult = value;
+            Raise();
+            Raise(nameof(IsWinningSpin));
+            Raise(nameof(LastResultAmountDisplay));
+            Raise(nameof(LastResultTitle));
+        }
+    }
+
+    bool _hasSpinResult;
+    public bool HasSpinResult
+    {
+        get => _hasSpinResult;
+        private set
+        {
+            if (_hasSpinResult == value) return;
+            _hasSpinResult = value;
+            Raise();
+            Raise(nameof(IsWinningSpin));
+            Raise(nameof(LastResultTitle));
+        }
+    }
+
+    public bool IsWinningSpin => HasSpinResult && LastNetResult > 0;
+
+    public string LastResultTitle
+        => !HasSpinResult
+            ? string.Empty
+            : (IsWinningSpin ? "WINNER!" : "NO WIN");
+
+    public string LastResultAmountDisplay
+        => LastNetResult switch
+        {
+            > 0 => $"+{LastNetResult:N0}",
+            0 => "0",
+            < 0 => LastNetResult.ToString("N0")
+        };
 
     const int MaxRecentSpins = 12;
     public ObservableCollection<SpinHistoryEntry> RecentSpins { get; } = new();
@@ -130,6 +181,7 @@ public sealed class GameViewModel : INotifyPropertyChanged
         {
             if (IsSpinInProgress) return;
             RefreshBets();
+            HasSpinResult = false;
             var spin = GenerateSpin();
             _pendingSpin = spin;
             IsSpinInProgress = true;
@@ -154,6 +206,7 @@ public sealed class GameViewModel : INotifyPropertyChanged
             RefreshStakeTotals();
             AddRecentSpin(s.Number, s.Color);
             _pendingSpin = null;
+            HasSpinResult = true;
         }
 
         IsSpinInProgress = false;

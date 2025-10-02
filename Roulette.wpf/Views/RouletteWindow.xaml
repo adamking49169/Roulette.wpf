@@ -188,6 +188,8 @@
                     <!-- even money -->
                     <RowDefinition Height="Auto"/>
                     <!-- bankroll info -->
+                    <RowDefinition Height="Auto"/>
+                    <!-- result banner -->
                 </Grid.RowDefinitions>
 
                 <!-- ==== Numbers area ==== -->
@@ -273,6 +275,83 @@
                             <TextBlock Text="{Binding AvailableBalance}" Foreground="White" FontWeight="SemiBold" FontSize="16"/>
                         </StackPanel>
                     </Grid>
+                </Border>
+
+                <!-- ==== Win popup overlay ==== -->
+                <Border Grid.RowSpan="6"
+                        Panel.ZIndex="25"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Bottom"
+                        Margin="0,0,0,28"
+                        Padding="30,26"
+                        CornerRadius="22"
+                        Visibility="{Binding HasSpinResult, Converter={StaticResource BoolToVis}}"
+                        Opacity="0">
+                    <Border.Style>
+                        <Style TargetType="Border">
+                            <Setter Property="Background" Value="#FFFDE7"/>
+                            <Setter Property="BorderBrush" Value="#FFFFFFFF"/>
+                            <Setter Property="BorderThickness" Value="3"/>
+                            <Setter Property="Effect">
+                                <Setter.Value>
+                                    <DropShadowEffect BlurRadius="28" ShadowDepth="0" Color="#CC000000"/>
+                                </Setter.Value>
+                            </Setter>
+                            <Setter Property="RenderTransformOrigin" Value="0.5,0.5"/>
+                            <Setter Property="RenderTransform">
+                                <Setter.Value>
+                                    <ScaleTransform ScaleX="0.75" ScaleY="0.75"/>
+                                </Setter.Value>
+                            </Setter>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding HasSpinResult}" Value="True">
+                                    <DataTrigger.EnterActions>
+                                        <BeginStoryboard>
+                                            <Storyboard>
+                                                <DoubleAnimation Storyboard.TargetProperty="RenderTransform.ScaleX"
+                                                                 From="0.4" To="1"
+                                                                 Duration="0:0:0.35">
+                                                    <DoubleAnimation.EasingFunction>
+                                                        <BackEase Amplitude="0.7" EasingMode="EaseOut"/>
+                                                    </DoubleAnimation.EasingFunction>
+                                                </DoubleAnimation>
+                                                <DoubleAnimation Storyboard.TargetProperty="RenderTransform.ScaleY"
+                                                                 From="0.4" To="1"
+                                                                 Duration="0:0:0.35">
+                                                    <DoubleAnimation.EasingFunction>
+                                                        <BackEase Amplitude="0.7" EasingMode="EaseOut"/>
+                                                    </DoubleAnimation.EasingFunction>
+                                                </DoubleAnimation>
+                                                <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                                                                 From="0" To="1"
+                                                                 Duration="0:0:0.3"/>
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </DataTrigger.EnterActions>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Style>
+                    <StackPanel HorizontalAlignment="Center">
+                        <TextBlock Text="{Binding LastResultTitle}" FontSize="44" FontWeight="Black" Foreground="#111"
+                                   HorizontalAlignment="Center" TextAlignment="Center"/>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,14,0,0">
+                            <TextBlock Text="Number" FontSize="22" FontWeight="SemiBold" Foreground="#111"
+                                       VerticalAlignment="Center" Margin="0,0,10,0"/>
+                            <Border Width="70" Height="70" CornerRadius="35" BorderThickness="3" BorderBrush="#FFFFFFFF"
+                                    Background="{Binding LastSpinColor, Converter={StaticResource SpinColorToBrushConverter}}">
+                                <Border.Effect>
+                                    <DropShadowEffect BlurRadius="18" ShadowDepth="0" Color="#88000000"/>
+                                </Border.Effect>
+                                <TextBlock Text="{Binding LastSpinNumber}" FontSize="30" FontWeight="Bold" Foreground="White"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                        </StackPanel>
+                        <TextBlock Text="RESULT" FontSize="20" FontWeight="Bold" Foreground="#4A148C"
+                                   HorizontalAlignment="Center" Margin="0,18,0,0"/>
+                        <TextBlock Text="{Binding LastResultAmountDisplay}" FontSize="38" FontWeight="Black"
+                                   Foreground="#111" HorizontalAlignment="Center"/>
+                    </StackPanel>
                 </Border>
             </Grid>
         </Border>
