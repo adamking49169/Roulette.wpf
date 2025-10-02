@@ -17,7 +17,7 @@ public sealed class GameViewModel : INotifyPropertyChanged
 
     // ===== Chips (common casino denominations/colours) =====
     // 1=White, 2=Blue, 5=Red, 10=Black, 20=Green, 50=Purple
-    public ObservableCollection<int> ChipValues { get; } = new(new[] { 1, 2, 5, 10, 20, 50 });
+    public ObservableCollection<int> ChipValues { get; } = new(new[] { 1, 2, 5, 10, 20, 50,100,500 });
     int _selectedChipValue = 5;
     public int SelectedChipValue { get => _selectedChipValue; set { _selectedChipValue = value; Raise(); } }
 

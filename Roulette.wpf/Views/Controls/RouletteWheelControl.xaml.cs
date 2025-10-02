@@ -201,7 +201,8 @@ public partial class RouletteWheelControl : UserControl
             slot.Opacity = 0.9;
             PocketsLayer.Children.Add(slot);
 
-           var divider = CreateRadialLine(cx, cy, DividerInnerRadius, PocketCenterRadius + 34, startAngle); divider.Stroke = new SolidColorBrush(ColorFromHex("#44000000"));
+            var divider = CreateRadialLine(cx, cy, DividerInnerRadius, PocketCenterRadius + 34, startAngle);
+            divider.Stroke = new SolidColorBrush(ColorFromHex("#44000000"));
             divider.StrokeThickness = 1.6;
             divider.StrokeStartLineCap = PenLineCap.Round;
             divider.StrokeEndLineCap = PenLineCap.Round;

@@ -73,6 +73,66 @@
             </Button>
         </DataTemplate>
 
+        <!-- ===== COLUMN / OUTSIDE BET CELLS ===== -->
+        <DataTemplate x:Key="ColumnCellTemplate">
+            <Button Command="{Binding DataContext.AddStakeCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                    CommandParameter="{Binding Key}"
+                    Background="{Binding Background}"
+                    BorderBrush="{DynamicResource FeltBorder}" BorderThickness="2"
+                    Margin="2" Padding="0" Height="64" Cursor="Hand">
+                <Grid>
+                    <TextBlock Text="{Binding Label}" Foreground="White"
+                               FontSize="18" FontWeight="SemiBold"
+                               HorizontalAlignment="Center" VerticalAlignment="Center"
+                               RenderTransformOrigin="0.5,0.5">
+                        <TextBlock.LayoutTransform>
+                            <RotateTransform Angle="270"/>
+                        </TextBlock.LayoutTransform>
+                    </TextBlock>
+                    <ContentPresenter ContentTemplate="{StaticResource ChipTemplate}"
+                                      HorizontalAlignment="Right" VerticalAlignment="Top" Margin="4"
+                                      Visibility="{Binding Stake, Converter={StaticResource IntToVis}}"/>
+                </Grid>
+            </Button>
+        </DataTemplate>
+
+        <DataTemplate x:Key="OutsideBetTemplate">
+            <Button Command="{Binding DataContext.AddStakeCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                    CommandParameter="{Binding Key}"
+                    Background="{Binding Background}"
+                    BorderBrush="{DynamicResource FeltBorder}" BorderThickness="2"
+                    Margin="2" Padding="0" Height="58" Cursor="Hand">
+                <Grid>
+                    <TextBlock x:Name="LabelText" Text="{Binding Label}" Foreground="White"
+                               FontSize="16" FontWeight="SemiBold" TextAlignment="Center"
+                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    <Viewbox x:Name="RedBlackIcon" Visibility="Collapsed"
+                             Width="72" Height="48"
+                             HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <Canvas Width="80" Height="52">
+                            <Polygon x:Name="DiamondShape" Points="20,26 40,13 60,26 40,39"
+                                     Stroke="White" StrokeThickness="3"
+                                     Fill="Transparent"/>
+                        </Canvas>
+                    </Viewbox>
+                    <ContentPresenter ContentTemplate="{StaticResource ChipTemplate}"
+                                      HorizontalAlignment="Right" VerticalAlignment="Top" Margin="4"
+                                      Visibility="{Binding Stake, Converter={StaticResource IntToVis}}"/>
+                </Grid>
+            </Button>
+            <DataTemplate.Triggers>
+                <DataTrigger Binding="{Binding Key}" Value="RB:Red">
+                    <Setter TargetName="LabelText" Property="Visibility" Value="Collapsed"/>
+                    <Setter TargetName="RedBlackIcon" Property="Visibility" Value="Visible"/>
+                    <Setter TargetName="DiamondShape" Property="Fill" Value="{DynamicResource RouletteRed}"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Key}" Value="RB:Black">
+                    <Setter TargetName="LabelText" Property="Visibility" Value="Collapsed"/>
+                    <Setter TargetName="RedBlackIcon" Property="Visibility" Value="Visible"/>
+                    <Setter TargetName="DiamondShape" Property="Fill" Value="{DynamicResource RouletteBlack}"/>
+                </DataTrigger>
+            </DataTemplate.Triggers>
+        </DataTemplate>
         <!-- ===== TALL ZERO CELL ===== -->
         <DataTemplate x:Key="ZeroCellTemplate">
             <Button Command="{Binding DataContext.AddStakeCommand, RelativeSource={RelativeSource AncestorType=Window}}"
@@ -154,111 +214,35 @@
                     </ItemsControl>
 
                     <!-- Right 2 to 1 -->
-                    <Grid Grid.Column="2" Margin="2">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="*" />
-                            <RowDefinition Height="*" />
-                            <RowDefinition Height="*" />
-                        </Grid.RowDefinitions>
-
-                        <Button Grid.Row="2" Command="{Binding AddStakeCommand}" CommandParameter="CL:1"
-                                Background="{DynamicResource FeltDark}" Foreground="White"
-                                BorderBrush="{DynamicResource FeltBorder}" BorderThickness="2"
-                                Margin="2" Height="64" Cursor="Hand" Content="2 to 1"/>
-                        <Button Grid.Row="1" Command="{Binding AddStakeCommand}" CommandParameter="CL:2"
-                                Background="{DynamicResource FeltDark}" Foreground="White"
-                                BorderBrush="{DynamicResource FeltBorder}" BorderThickness="2"
-                                Margin="2" Height="64" Cursor="Hand" Content="2 to 1"/>
-                        <Button Grid.Row="0" Command="{Binding AddStakeCommand}" CommandParameter="CL:3"
-                                Background="{DynamicResource FeltDark}" Foreground="White"
-                                BorderBrush="{DynamicResource FeltBorder}" BorderThickness="2"
-                                Margin="2" Height="64" Cursor="Hand" Content="2 to 1"/>
-                    </Grid>
+                    <ItemsControl Grid.Column="2" ItemsSource="{Binding OutsideColumns}"
+                                  ItemTemplate="{StaticResource ColumnCellTemplate}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <UniformGrid Rows="3" Columns="1"/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                    </ItemsControl>
                 </Grid>
 
                 <!-- ==== Dozens ==== -->
-                <Grid Grid.Row="2">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-
-                    <Button Grid.Column="0" Command="{Binding AddStakeCommand}" CommandParameter="DZ:1"
-                            Background="{DynamicResource FeltDark}" Foreground="White"
-                            BorderBrush="{DynamicResource FeltBorder}" BorderThickness="2"
-                            Margin="2" Height="52" Cursor="Hand" Content="1st 12"/>
-                    <Button Grid.Column="1" Command="{Binding AddStakeCommand}" CommandParameter="DZ:2"
-                            Background="{DynamicResource FeltDark}" Foreground="White"
-                            BorderBrush="{DynamicResource FeltBorder}" BorderThickness="2"
-                            Margin="2" Height="52" Cursor="Hand" Content="2nd 12"/>
-                    <Button Grid.Column="2" Command="{Binding AddStakeCommand}" CommandParameter="DZ:3"
-                            Background="{DynamicResource FeltDark}" Foreground="White"
-                            BorderBrush="{DynamicResource FeltBorder}" BorderThickness="2"
-                            Margin="2" Height="52" Cursor="Hand" Content="3rd 12"/>
-                </Grid>
+                <ItemsControl Grid.Row="2" ItemsSource="{Binding OutsideDozens}"
+                              ItemTemplate="{StaticResource OutsideBetTemplate}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <UniformGrid Rows="1" Columns="3"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                </ItemsControl>
 
                 <!-- ==== Even-money ==== -->
-                <Grid Grid.Row="4">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="*" />
-                    </Grid.ColumnDefinitions>
-
-                    <Button Grid.Column="0" Command="{Binding AddStakeCommand}" CommandParameter="LH:Low"
-                            Background="{DynamicResource FeltDark}" Foreground="White"
-                            BorderBrush="{DynamicResource FeltBorder}" BorderThickness="2"
-                            Margin="2" Height="52" Cursor="Hand" Content="1 - 18"/>
-
-                    <Button Grid.Column="1" Command="{Binding AddStakeCommand}" CommandParameter="EO:Even"
-                            Background="{DynamicResource FeltDark}" Foreground="White"
-                            BorderBrush="{DynamicResource FeltBorder}" BorderThickness="2"
-                            Margin="2" Height="52" Cursor="Hand" Content="Even"/>
-
-                    <!-- Red diamond -->
-                    <Button Grid.Column="2" Command="{Binding AddStakeCommand}" CommandParameter="RB:Red"
-                            Background="{DynamicResource FeltDark}" BorderBrush="{DynamicResource FeltBorder}"
-                            BorderThickness="2" Margin="2" Height="52" Cursor="Hand">
-                        <Grid>
-                            <Viewbox Stretch="Uniform" Width="72" Height="52"
-                                     HorizontalAlignment="Center" VerticalAlignment="Center">
-                                <Canvas Width="80" Height="52">
-                                    <Polygon Points="20,26 40,13 60,26 40,39"
-                                             Fill="#b12c2c" Stroke="White" StrokeThickness="3"/>
-                                </Canvas>
-                            </Viewbox>
-                        </Grid>
-                    </Button>
-
-                    <!-- Black diamond -->
-                    <Button Grid.Column="3" Command="{Binding AddStakeCommand}" CommandParameter="RB:Black"
-                            Background="{DynamicResource FeltDark}" BorderBrush="{DynamicResource FeltBorder}"
-                            BorderThickness="2" Margin="2" Height="52" Cursor="Hand">
-                        <Grid>
-                            <Viewbox Stretch="Uniform" Width="72" Height="52"
-                                     HorizontalAlignment="Center" VerticalAlignment="Center">
-                                <Canvas Width="80" Height="52">
-                                    <Polygon Points="20,26 40,13 60,26 40,39"
-                                             Fill="#222" Stroke="White" StrokeThickness="3"/>
-                                </Canvas>
-                            </Viewbox>
-                        </Grid>
-                    </Button>
-
-                    <Button Grid.Column="4" Command="{Binding AddStakeCommand}" CommandParameter="EO:Odd"
-                            Background="{DynamicResource FeltDark}" Foreground="White"
-                            BorderBrush="{DynamicResource FeltBorder}" BorderThickness="2"
-                            Margin="2" Height="52" Cursor="Hand" Content="Odd"/>
-
-                    <Button Grid.Column="5" Command="{Binding AddStakeCommand}" CommandParameter="LH:High"
-                            Background="{DynamicResource FeltDark}" Foreground="White"
-                            BorderBrush="{DynamicResource FeltBorder}" BorderThickness="2"
-                            Margin="2" Height="52" Cursor="Hand" Content="19 - 36"/>
-                </Grid>
+                <ItemsControl Grid.Row="4" ItemsSource="{Binding OutsideEvenMoney}"
+                              ItemTemplate="{StaticResource OutsideBetTemplate}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <UniformGrid Rows="1" Columns="6"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                </ItemsControl>
             </Grid>
         </Border>
 
