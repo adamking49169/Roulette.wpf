@@ -85,7 +85,7 @@ public partial class RouletteWheelControl : UserControl
         _wheelAngle = NormalizeDeg(_wheelAngle);
         _wheelVel = 650;
         _ballAngle = _wheelAngle - 90 + 180;
-        _ballVel = 1400;
+        _ballVel = -1400;
         _ballRadius = BallOuterRadius;
         _ballRadVel = 0;
 
@@ -148,7 +148,10 @@ public partial class RouletteWheelControl : UserControl
             _ballRadVel = 0;
             _ballRadius = BallRestRadius;
         }
-
+        if (_captured)
+        {
+            _ballAngle = NormalizeDeg(_wheelAngle + _targetPocketAngle);
+        }
         if (_captured && Math.Abs(_wheelVel) < 8 && Math.Abs(_ballRadVel) < 5)
         {
             _timer.Stop();

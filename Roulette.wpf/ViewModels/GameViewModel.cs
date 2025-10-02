@@ -43,6 +43,9 @@ public sealed class GameViewModel : INotifyPropertyChanged
     int _lastNetResult;
     public int LastNetResult { get => _lastNetResult; private set { _lastNetResult = value; Raise(); } }
 
+    const int MaxRecentSpins = 12;
+    public ObservableCollection<SpinHistoryEntry> RecentSpins { get; } = new();
+
     bool _useSeed;
     public bool UseSeed { get => _useSeed; set { if (_useSeed != value) { _useSeed = value; Raise(); } } }
 
@@ -115,10 +118,30 @@ public sealed class GameViewModel : INotifyPropertyChanged
             LastSpinNumber = s.Number;
             LastSpinColor = s.Color;
             LastNetResult = Core.Payouts.EvaluateMany(Bets.Select(b => b.Bet), s);
+            AddRecentSpin(s.Number, s.Color);
             _pendingSpin = null;
         }
 
         IsSpinInProgress = false;
+    }
+    public sealed class SpinHistoryEntry
+    {
+        public int Number { get; }
+        public Core.Color Color { get; }
+        public string ColorLabel => Color.ToString();
+
+        public SpinHistoryEntry(int number, Core.Color color)
+        {
+            Number = number;
+            Color = color;
+        }
+    }
+
+    void AddRecentSpin(int number, Core.Color color)
+    {
+        RecentSpins.Insert(0, new SpinHistoryEntry(number, color));
+        while (RecentSpins.Count > MaxRecentSpins)
+            RecentSpins.RemoveAt(RecentSpins.Count - 1);
     }
 
     Core.SpinResult GenerateSpin()

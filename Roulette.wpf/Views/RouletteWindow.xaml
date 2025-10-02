@@ -102,6 +102,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition/>
+            <!--<RowDefinition Height="Auto"/>-->
         </Grid.RowDefinitions>
 
         <TextBlock Grid.ColumnSpan="3"
@@ -377,5 +378,32 @@
             </Border>
 
         </StackPanel>
+        <!-- ===== RECENT NUMBERS ===== --><!--
+        <Border Grid.Row="2" Grid.ColumnSpan="1" Style="{StaticResource Card}">
+            <StackPanel>
+                <TextBlock Text="Recent Numbers" FontWeight="SemiBold" FontSize="14"/>
+                <ItemsControl ItemsSource="{Binding RecentSpins}" Margin="0,8,0,0">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Horizontal"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Margin="0,0,12,0" HorizontalAlignment="Center">
+                                <Border Width="46" Height="46" CornerRadius="23"
+                                        Background="{Binding Color, Converter={StaticResource SpinColorToBrushConverter}}"
+                                        HorizontalAlignment="Center">
+                                    <TextBlock Text="{Binding Number}" FontSize="18" FontWeight="Bold" Foreground="White"
+                                               VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                </Border>
+                                <TextBlock Text="{Binding ColorLabel}" FontSize="11" Margin="0,6,0,0"
+                                           HorizontalAlignment="Center" Foreground="#555"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </StackPanel>
+        </Border>-->
     </Grid>
 </controls:MetroWindow>
