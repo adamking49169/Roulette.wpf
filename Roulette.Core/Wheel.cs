@@ -18,7 +18,13 @@ public static class Wheel
         return reds.Contains(n) ? Color.Red : Color.Black;
     }
 
-    public static int GetDozen(int n) => (n >= 1 && n <= 12) ? 1 : (n <= 24 ? 2 : (n <= 36 ? 3 : 0));
+    public static int GetDozen(int n)
+    {
+        if (n <= 0 || n > 36) return 0;
+        if (n <= 12) return 1;
+        if (n <= 24) return 2;
+        return 3;
+    }
     public static int GetColumn(int n)
     {
         if (n == 0) return 0;

@@ -269,6 +269,11 @@ public sealed class GameViewModel : INotifyPropertyChanged
         // Note: we’re not directly binding these right buttons to OutsideColumns; the buttons call AddStake with CL:x
         // so we just read stakes from any cells carrying CL:x if you decide to add visual chips there later.
         // For now, column bets come from the command clicks.
+        foreach (var c in OutsideColumns.Where(c => c.Stake > 0))
+        {
+            int column = int.Parse(c.Key.Split(':')[1]);
+            Bets.Add(new BetView(new Core.Bet(Core.BetType.Column, c.Stake, Column: column), $"Column {column}", "Column"));
+        }
         Raise(nameof(Bets));
     }
 
