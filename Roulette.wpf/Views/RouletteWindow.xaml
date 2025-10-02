@@ -3,61 +3,64 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
     xmlns:viewModels="clr-namespace:Roulette.Wpf.ViewModels"
-    xmlns:views="clr-namespace:Roulette.Wpf.Views"
     xmlns:conv="clr-namespace:Roulette.Wpf.Converters"
-                      xmlns:controlsLocal="clr-namespace:Roulette.Wpf.Views.Controls"
-    Title="Roulette" Width="1180" Height="820" WindowStartupLocation="CenterScreen">
+    xmlns:controlsLocal="clr-namespace:Roulette.Wpf.Views.Controls"
+    Title="Roulette"
+    Width="1180"
+    Height="820"
+    WindowStartupLocation="CenterScreen">
 
     <!-- ViewModel -->
     <controls:MetroWindow.DataContext>
-        <viewModels:GameViewModel/>
+        <viewModels:GameViewModel />
     </controls:MetroWindow.DataContext>
 
     <!-- Resources -->
     <controls:MetroWindow.Resources>
         <!-- Felt + number colours -->
-        <SolidColorBrush x:Key="Felt" Color="#175a2b"/>
-        <SolidColorBrush x:Key="FeltDark" Color="#0f4721"/>
-        <SolidColorBrush x:Key="FeltBorder" Color="#E6E6E6"/>
-        <SolidColorBrush x:Key="NumRed" Color="#b12c2c"/>
-        <SolidColorBrush x:Key="NumBlack" Color="#222222"/>
-        <SolidColorBrush x:Key="NumGreen" Color="#0e7a3a"/>
-        <SolidColorBrush x:Key="RouletteRed" Color="#c62828"/>
-        <SolidColorBrush x:Key="RouletteBlack" Color="#111111"/>
-        <SolidColorBrush x:Key="RouletteGreen" Color="#0f9d58"/>
+        <SolidColorBrush x:Key="Felt" Color="#175a2b" />
+        <SolidColorBrush x:Key="FeltDark" Color="#0f4721" />
+        <SolidColorBrush x:Key="FeltBorder" Color="#E6E6E6" />
+        <SolidColorBrush x:Key="NumRed" Color="#b12c2c" />
+        <SolidColorBrush x:Key="NumBlack" Color="#222222" />
+        <SolidColorBrush x:Key="NumGreen" Color="#0e7a3a" />
+        <SolidColorBrush x:Key="RouletteRed" Color="#c62828" />
+        <SolidColorBrush x:Key="RouletteBlack" Color="#111111" />
+        <SolidColorBrush x:Key="RouletteGreen" Color="#0f9d58" />
 
         <!-- Background -->
         <LinearGradientBrush x:Key="CasinoBackground" StartPoint="0,0" EndPoint="0,1">
-            <GradientStop Color="#0b2f1a" Offset="0"/>
-            <GradientStop Color="#14512a" Offset="0.58"/>
-            <GradientStop Color="#2f6a3e" Offset="0.78"/>
-            <GradientStop Color="#d1ad4f" Offset="1"/>
+            <GradientStop Color="#0b2f1a" Offset="0" />
+            <GradientStop Color="#14512a" Offset="0.58" />
+            <GradientStop Color="#2f6a3e" Offset="0.78" />
+            <GradientStop Color="#d1ad4f" Offset="1" />
         </LinearGradientBrush>
 
         <!-- Converters -->
-        <conv:SpinColorToBrushConverter x:Key="SpinColorToBrushConverter"/>
-        <conv:ValueToChipBrushConverter x:Key="ChipBrushConverter"/>
-        <conv:IntToVisibilityConverter x:Key="IntToVis"/>
-        <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+        <conv:SpinColorToBrushConverter x:Key="SpinColorToBrushConverter" />
+        <conv:ValueToChipBrushConverter x:Key="ChipBrushConverter" />
+        <conv:IntToVisibilityConverter x:Key="IntToVis" />
+        <conv:ChipStackOffsetConverter x:Key="ChipStackOffsetConverter" />
+        <BooleanToVisibilityConverter x:Key="BoolToVis" />
 
         <!-- Card wrapper used on right -->
         <Style x:Key="Card" TargetType="Border">
-            <Setter Property="CornerRadius" Value="10"/>
+            <Setter Property="CornerRadius" Value="10" />
             <Setter Property="Background">
                 <Setter.Value>
                     <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-                        <GradientStop Color="#1a5d31" Offset="0"/>
-                        <GradientStop Color="#0f4721" Offset="1"/>
+                        <GradientStop Color="#1a5d31" Offset="0" />
+                        <GradientStop Color="#0f4721" Offset="1" />
                     </LinearGradientBrush>
                 </Setter.Value>
             </Setter>
-            <Setter Property="BorderBrush" Value="#d4af37"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Padding" Value="10"/>
-            <Setter Property="Margin" Value="4"/>
+            <Setter Property="BorderBrush" Value="#d4af37" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Padding" Value="10" />
+            <Setter Property="Margin" Value="4" />
             <Setter Property="Effect">
                 <Setter.Value>
-                    <DropShadowEffect Color="#66000000" BlurRadius="14" ShadowDepth="3" Direction="270"/>
+                    <DropShadowEffect Color="#66000000" BlurRadius="14" ShadowDepth="3" Direction="270" />
                 </Setter.Value>
             </Setter>
         </Style>
@@ -65,12 +68,16 @@
         <!-- ===== CHIP (casino-style) ===== -->
         <DataTemplate x:Key="ChipTemplate">
             <Grid Width="34" Height="34">
-                <Ellipse Fill="{Binding ChipBrush}" Stroke="White" StrokeThickness="4" StrokeDashArray="1,2"/>
-                <Ellipse Width="22" Height="22" Fill="White" Opacity="0.92"/>
-                <TextBlock Text="{Binding Stake}" FontWeight="Bold" FontSize="12"
-                           HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="#222"/>
+                <Ellipse Fill="{Binding ChipBrush}" Stroke="White" StrokeThickness="4" StrokeDashArray="1,2" />
+                <Ellipse Width="22" Height="22" Fill="White" Opacity="0.92" />
+                <TextBlock Text="{Binding Value}"
+                           FontWeight="Bold"
+                           FontSize="12"
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Center"
+                           Foreground="#222" />
                 <Grid.Effect>
-                    <DropShadowEffect BlurRadius="6" ShadowDepth="0" Color="#55000000"/>
+                    <DropShadowEffect BlurRadius="6" ShadowDepth="0" Color="#55000000" />
                 </Grid.Effect>
             </Grid>
         </DataTemplate>
@@ -80,15 +87,46 @@
             <Button Command="{Binding DataContext.AddStakeCommand, RelativeSource={RelativeSource AncestorType=Window}}"
                     CommandParameter="{Binding Key}"
                     Background="{Binding Background}"
-                    BorderBrush="{DynamicResource FeltBorder}" BorderThickness="2"
-                    Margin="2" Padding="0" Height="64" Cursor="Hand">
+                    BorderBrush="{DynamicResource FeltBorder}"
+                    BorderThickness="2"
+                    Margin="2"
+                    Padding="0"
+                    Height="64"
+                    Cursor="Hand">
                 <Grid>
-                    <TextBlock Text="{Binding Label}" Foreground="White"
-                               FontSize="18" FontWeight="SemiBold"
-                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                    <ContentPresenter ContentTemplate="{StaticResource ChipTemplate}"
-                                      HorizontalAlignment="Right" VerticalAlignment="Top" Margin="4"
-                                      Visibility="{Binding Stake, Converter={StaticResource IntToVis}}"/>
+                    <TextBlock Text="{Binding Label}"
+                               Foreground="White"
+                               FontSize="18"
+                               FontWeight="SemiBold"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center" />
+                    <ItemsControl ItemsSource="{Binding Chips}"
+                                  ItemTemplate="{StaticResource ChipTemplate}"
+                                  AlternationCount="128"
+                                  HorizontalAlignment="Right"
+                                  VerticalAlignment="Top"
+                                  Margin="4"
+                                  Visibility="{Binding Stake, Converter={StaticResource IntToVis}}"
+                                  IsHitTestVisible="False">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <Grid />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemContainerStyle>
+                            <Style TargetType="ContentPresenter">
+                                <Setter Property="HorizontalAlignment" Value="Right" />
+                                <Setter Property="VerticalAlignment" Value="Top" />
+                                <Setter Property="Margin">
+                                    <Setter.Value>
+                                        <Binding RelativeSource="{RelativeSource Self}"
+                                                 Path="(ItemsControl.AlternationIndex)"
+                                                 Converter="{StaticResource ChipStackOffsetConverter}" />
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </ItemsControl.ItemContainerStyle>
+                    </ItemsControl>
                 </Grid>
             </Button>
         </DataTemplate>
@@ -98,20 +136,51 @@
             <Button Command="{Binding DataContext.AddStakeCommand, RelativeSource={RelativeSource AncestorType=Window}}"
                     CommandParameter="{Binding Key}"
                     Background="{Binding Background}"
-                    BorderBrush="{DynamicResource FeltBorder}" BorderThickness="2"
-                    Margin="2" Padding="0" Height="64" Cursor="Hand">
+                    BorderBrush="{DynamicResource FeltBorder}"
+                    BorderThickness="2"
+                    Margin="2"
+                    Padding="0"
+                    Height="64"
+                    Cursor="Hand">
                 <Grid>
-                    <TextBlock Text="{Binding Label}" Foreground="White"
-                               FontSize="18" FontWeight="SemiBold"
-                               HorizontalAlignment="Center" VerticalAlignment="Center"
+                    <TextBlock Text="{Binding Label}"
+                               Foreground="White"
+                               FontSize="18"
+                               FontWeight="SemiBold"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"
                                RenderTransformOrigin="0.5,0.5">
                         <TextBlock.LayoutTransform>
-                            <RotateTransform Angle="270"/>
+                            <RotateTransform Angle="270" />
                         </TextBlock.LayoutTransform>
                     </TextBlock>
-                    <ContentPresenter ContentTemplate="{StaticResource ChipTemplate}"
-                                      HorizontalAlignment="Right" VerticalAlignment="Top" Margin="4"
-                                      Visibility="{Binding Stake, Converter={StaticResource IntToVis}}"/>
+                    <ItemsControl ItemsSource="{Binding Chips}"
+                                  ItemTemplate="{StaticResource ChipTemplate}"
+                                  AlternationCount="128"
+                                  HorizontalAlignment="Right"
+                                  VerticalAlignment="Top"
+                                  Margin="4"
+                                  Visibility="{Binding Stake, Converter={StaticResource IntToVis}}"
+                                  IsHitTestVisible="False">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <Grid />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemContainerStyle>
+                            <Style TargetType="ContentPresenter">
+                                <Setter Property="HorizontalAlignment" Value="Right" />
+                                <Setter Property="VerticalAlignment" Value="Top" />
+                                <Setter Property="Margin">
+                                    <Setter.Value>
+                                        <Binding RelativeSource="{RelativeSource Self}"
+                                                 Path="(ItemsControl.AlternationIndex)"
+                                                 Converter="{StaticResource ChipStackOffsetConverter}" />
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </ItemsControl.ItemContainerStyle>
+                    </ItemsControl>
                 </Grid>
             </Button>
         </DataTemplate>
@@ -120,53 +189,123 @@
             <Button Command="{Binding DataContext.AddStakeCommand, RelativeSource={RelativeSource AncestorType=Window}}"
                     CommandParameter="{Binding Key}"
                     Background="{Binding Background}"
-                    BorderBrush="{DynamicResource FeltBorder}" BorderThickness="2"
-                    Margin="2" Padding="0" Height="58" Cursor="Hand">
+                    BorderBrush="{DynamicResource FeltBorder}"
+                    BorderThickness="2"
+                    Margin="2"
+                    Padding="0"
+                    Height="58"
+                    Cursor="Hand">
                 <Grid>
-                    <TextBlock x:Name="LabelText" Text="{Binding Label}" Foreground="White"
-                               FontSize="16" FontWeight="SemiBold" TextAlignment="Center"
-                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                    <Viewbox x:Name="RedBlackIcon" Visibility="Collapsed"
-                             Width="72" Height="48"
-                             HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <TextBlock x:Name="LabelText"
+                               Text="{Binding Label}"
+                               Foreground="White"
+                               FontSize="16"
+                               FontWeight="SemiBold"
+                               TextAlignment="Center"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center" />
+                    <Viewbox x:Name="RedBlackIcon"
+                             Visibility="Collapsed"
+                             Width="72"
+                             Height="48"
+                             HorizontalAlignment="Center"
+                             VerticalAlignment="Center">
                         <Canvas Width="80" Height="52">
-                            <Polygon x:Name="DiamondShape" Points="20,26 40,13 60,26 40,39"
-                                     Stroke="White" StrokeThickness="3"
-                                     Fill="Transparent"/>
+                            <Polygon x:Name="DiamondShape"
+                                     Points="20,26 40,13 60,26 40,39"
+                                     Stroke="White"
+                                     StrokeThickness="3"
+                                     Fill="Transparent" />
                         </Canvas>
                     </Viewbox>
-                    <ContentPresenter ContentTemplate="{StaticResource ChipTemplate}"
-                                      HorizontalAlignment="Right" VerticalAlignment="Top" Margin="4"
-                                      Visibility="{Binding Stake, Converter={StaticResource IntToVis}}"/>
+                    <ItemsControl ItemsSource="{Binding Chips}"
+                                  ItemTemplate="{StaticResource ChipTemplate}"
+                                  AlternationCount="128"
+                                  HorizontalAlignment="Right"
+                                  VerticalAlignment="Top"
+                                  Margin="4"
+                                  Visibility="{Binding Stake, Converter={StaticResource IntToVis}}"
+                                  IsHitTestVisible="False">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <Grid />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemContainerStyle>
+                            <Style TargetType="ContentPresenter">
+                                <Setter Property="HorizontalAlignment" Value="Right" />
+                                <Setter Property="VerticalAlignment" Value="Top" />
+                                <Setter Property="Margin">
+                                    <Setter.Value>
+                                        <Binding RelativeSource="{RelativeSource Self}"
+                                                 Path="(ItemsControl.AlternationIndex)"
+                                                 Converter="{StaticResource ChipStackOffsetConverter}" />
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </ItemsControl.ItemContainerStyle>
+                    </ItemsControl>
                 </Grid>
             </Button>
             <DataTemplate.Triggers>
                 <DataTrigger Binding="{Binding Key}" Value="RB:Red">
-                    <Setter TargetName="LabelText" Property="Visibility" Value="Collapsed"/>
-                    <Setter TargetName="RedBlackIcon" Property="Visibility" Value="Visible"/>
-                    <Setter TargetName="DiamondShape" Property="Fill" Value="{DynamicResource RouletteRed}"/>
+                    <Setter TargetName="LabelText" Property="Visibility" Value="Collapsed" />
+                    <Setter TargetName="RedBlackIcon" Property="Visibility" Value="Visible" />
+                    <Setter TargetName="DiamondShape" Property="Fill" Value="{DynamicResource RouletteRed}" />
                 </DataTrigger>
                 <DataTrigger Binding="{Binding Key}" Value="RB:Black">
-                    <Setter TargetName="LabelText" Property="Visibility" Value="Collapsed"/>
-                    <Setter TargetName="RedBlackIcon" Property="Visibility" Value="Visible"/>
-                    <Setter TargetName="DiamondShape" Property="Fill" Value="{DynamicResource RouletteBlack}"/>
+                    <Setter TargetName="LabelText" Property="Visibility" Value="Collapsed" />
+                    <Setter TargetName="RedBlackIcon" Property="Visibility" Value="Visible" />
+                    <Setter TargetName="DiamondShape" Property="Fill" Value="{DynamicResource RouletteBlack}" />
                 </DataTrigger>
             </DataTemplate.Triggers>
         </DataTemplate>
+
         <!-- ===== TALL ZERO CELL ===== -->
         <DataTemplate x:Key="ZeroCellTemplate">
             <Button Command="{Binding DataContext.AddStakeCommand, RelativeSource={RelativeSource AncestorType=Window}}"
                     CommandParameter="{Binding Key}"
                     Background="{DynamicResource NumGreen}"
-                    BorderBrush="{DynamicResource FeltBorder}" BorderThickness="2"
-                    Margin="2" Padding="0" Height="206" Cursor="Hand">
+                    BorderBrush="{DynamicResource FeltBorder}"
+                    BorderThickness="2"
+                    Margin="2"
+                    Padding="0"
+                    Height="206"
+                    Cursor="Hand">
                 <Grid>
-                    <TextBlock Text="{Binding Label}" Foreground="White"
-                               FontSize="26" FontWeight="Bold"
-                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                    <ContentPresenter ContentTemplate="{StaticResource ChipTemplate}"
-                                      HorizontalAlignment="Right" VerticalAlignment="Top" Margin="4"
-                                      Visibility="{Binding Stake, Converter={StaticResource IntToVis}}"/>
+                    <TextBlock Text="{Binding Label}"
+                               Foreground="White"
+                               FontSize="26"
+                               FontWeight="Bold"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center" />
+                    <ItemsControl ItemsSource="{Binding Chips}"
+                                  ItemTemplate="{StaticResource ChipTemplate}"
+                                  AlternationCount="128"
+                                  HorizontalAlignment="Right"
+                                  VerticalAlignment="Top"
+                                  Margin="4"
+                                  Visibility="{Binding Stake, Converter={StaticResource IntToVis}}"
+                                  IsHitTestVisible="False">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <Grid />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemContainerStyle>
+                            <Style TargetType="ContentPresenter">
+                                <Setter Property="HorizontalAlignment" Value="Right" />
+                                <Setter Property="VerticalAlignment" Value="Top" />
+                                <Setter Property="Margin">
+                                    <Setter.Value>
+                                        <Binding RelativeSource="{RelativeSource Self}"
+                                                 Path="(ItemsControl.AlternationIndex)"
+                                                 Converter="{StaticResource ChipStackOffsetConverter}" />
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </ItemsControl.ItemContainerStyle>
+                    </ItemsControl>
                 </Grid>
             </Button>
         </DataTemplate>
@@ -181,152 +320,168 @@
                 Opacity="0.97">
             <Grid>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="12"/>
-                    <ColumnDefinition Width="430"/>
-
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="12" />
+                    <ColumnDefinition Width="430" />
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition/>
-                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition />
+                    <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
 
                 <TextBlock Grid.ColumnSpan="3"
                            Text="European Roulette"
-                           FontSize="20" FontWeight="SemiBold"
-                           Margin="12,10,12,0"/>
+                           FontSize="20"
+                           FontWeight="SemiBold"
+                           Margin="12,10,12,0" />
 
                 <!-- ===== LEFT: REALISTIC TABLE ===== -->
-                <Border Grid.Row="1" Grid.Column="0"
-                Background="{DynamicResource Felt}" CornerRadius="14"
-                BorderBrush="{DynamicResource FeltBorder}" BorderThickness="2" Padding="10" Margin="8">
+                <Border Grid.Row="1"
+                        Grid.Column="0"
+                        Background="{DynamicResource Felt}"
+                        CornerRadius="14"
+                        BorderBrush="{DynamicResource FeltBorder}"
+                        BorderThickness="2"
+                        Padding="10"
+                        Margin="8">
                     <Grid>
                         <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <!-- numbers block -->
-                            <RowDefinition Height="10"/>
-                            <!-- gap -->
-                            <RowDefinition Height="Auto"/>
-                            <!-- dozens -->
-                            <RowDefinition Height="6"/>
-                            <RowDefinition Height="Auto"/>
-                            <!-- even money -->
-                            <RowDefinition Height="Auto"/>
-                            <!-- bankroll info -->
-                            <RowDefinition Height="Auto"/>
-                            <!-- result banner -->
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="10" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="6" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
                         </Grid.RowDefinitions>
 
                         <!-- ==== Numbers area ==== -->
                         <Grid Grid.Row="0">
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="92"/>
-                                <!-- zero -->
+                                <ColumnDefinition Width="92" />
                                 <ColumnDefinition Width="*" />
-                                <!-- 3x12 numbers -->
-                                <ColumnDefinition Width="120"/>
-                                <!-- 2 to 1 buttons -->
+                                <ColumnDefinition Width="120" />
                             </Grid.ColumnDefinitions>
 
                             <!-- Tall 0 -->
-                            <ItemsControl Grid.Column="0" ItemsSource="{Binding ZeroCell}"
-                                  ItemTemplate="{StaticResource ZeroCellTemplate}"/>
+                            <ItemsControl Grid.Column="0"
+                                          ItemsSource="{Binding ZeroCell}"
+                                          ItemTemplate="{StaticResource ZeroCellTemplate}" />
 
                             <!-- 3 × 12 number grid -->
-                            <ItemsControl Grid.Column="1" ItemsSource="{Binding NumberCells}"
-                                  ItemTemplate="{StaticResource RectCellTemplate}">
+                            <ItemsControl Grid.Column="1"
+                                          ItemsSource="{Binding NumberCells}"
+                                          ItemTemplate="{StaticResource RectCellTemplate}">
                                 <ItemsControl.ItemsPanel>
                                     <ItemsPanelTemplate>
-                                        <UniformGrid Rows="3" Columns="12"/>
+                                        <UniformGrid Rows="3" Columns="12" />
                                     </ItemsPanelTemplate>
                                 </ItemsControl.ItemsPanel>
                             </ItemsControl>
 
                             <!-- Right 2 to 1 -->
-                            <ItemsControl Grid.Column="2" ItemsSource="{Binding OutsideColumns}"
-                                  ItemTemplate="{StaticResource ColumnCellTemplate}">
+                            <ItemsControl Grid.Column="2"
+                                          ItemsSource="{Binding OutsideColumns}"
+                                          ItemTemplate="{StaticResource ColumnCellTemplate}">
                                 <ItemsControl.ItemsPanel>
                                     <ItemsPanelTemplate>
-                                        <UniformGrid Rows="3" Columns="1"/>
+                                        <UniformGrid Rows="3" Columns="1" />
                                     </ItemsPanelTemplate>
                                 </ItemsControl.ItemsPanel>
                             </ItemsControl>
                         </Grid>
 
                         <!-- ==== Dozens ==== -->
-                        <ItemsControl Grid.Row="2" ItemsSource="{Binding OutsideDozens}"
-                              ItemTemplate="{StaticResource OutsideBetTemplate}">
+                        <ItemsControl Grid.Row="2"
+                                      ItemsSource="{Binding OutsideDozens}"
+                                      ItemTemplate="{StaticResource OutsideBetTemplate}">
                             <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate>
-                                    <UniformGrid Rows="1" Columns="3"/>
+                                    <UniformGrid Rows="1" Columns="3" />
                                 </ItemsPanelTemplate>
                             </ItemsControl.ItemsPanel>
                         </ItemsControl>
 
                         <!-- ==== Even-money ==== -->
-                        <ItemsControl Grid.Row="4" ItemsSource="{Binding OutsideEvenMoney}"
-                              ItemTemplate="{StaticResource OutsideBetTemplate}">
+                        <ItemsControl Grid.Row="4"
+                                      ItemsSource="{Binding OutsideEvenMoney}"
+                                      ItemTemplate="{StaticResource OutsideBetTemplate}">
                             <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate>
-                                    <UniformGrid Rows="1" Columns="6"/>
+                                    <UniformGrid Rows="1" Columns="6" />
                                 </ItemsPanelTemplate>
                             </ItemsControl.ItemsPanel>
                         </ItemsControl>
+
                         <!-- ==== Bankroll info ==== -->
-                        <Border Grid.Row="5" Margin="0,18,0,0" Background="{DynamicResource FeltDark}" CornerRadius="10"
-         Padding="16" BorderThickness="1" BorderBrush="{DynamicResource FeltBorder}">
+                        <Border Grid.Row="5"
+                                Margin="0,18,0,0"
+                                Background="{DynamicResource FeltDark}"
+                                CornerRadius="10"
+                                Padding="16"
+                                BorderThickness="1"
+                                BorderBrush="{DynamicResource FeltBorder}">
                             <Grid>
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="Auto" />
                                 </Grid.ColumnDefinitions>
                                 <Grid.RowDefinitions>
-                                    <RowDefinition/>
+                                    <RowDefinition />
                                 </Grid.RowDefinitions>
 
                                 <StackPanel Margin="0,0,24,0">
-                                    <TextBlock Text="Balance" Foreground="#E6E6E6" FontSize="12"/>
-                                    <TextBlock Text="{Binding Balance}" Foreground="White" FontWeight="SemiBold" FontSize="16"/>
+                                    <TextBlock Text="Balance" Foreground="#E6E6E6" FontSize="12" />
+                                    <TextBlock Text="{Binding Balance}"
+                                               Foreground="White"
+                                               FontWeight="SemiBold"
+                                               FontSize="16" />
                                 </StackPanel>
 
                                 <StackPanel Grid.Column="1" Margin="0,0,24,0">
-                                    <TextBlock Text="Table Stake" Foreground="#E6E6E6" FontSize="12"/>
-                                    <TextBlock Text="{Binding TableStake}" Foreground="White" FontWeight="SemiBold" FontSize="16"/>
+                                    <TextBlock Text="Table Stake" Foreground="#E6E6E6" FontSize="12" />
+                                    <TextBlock Text="{Binding TableStake}"
+                                               Foreground="White"
+                                               FontWeight="SemiBold"
+                                               FontSize="16" />
                                 </StackPanel>
 
                                 <StackPanel Grid.Column="2">
-                                    <TextBlock Text="Available" Foreground="#E6E6E6" FontSize="12"/>
-                                    <TextBlock Text="{Binding AvailableBalance}" Foreground="White" FontWeight="SemiBold" FontSize="16"/>
+                                    <TextBlock Text="Available" Foreground="#E6E6E6" FontSize="12" />
+                                    <TextBlock Text="{Binding AvailableBalance}"
+                                               Foreground="White"
+                                               FontWeight="SemiBold"
+                                               FontSize="16" />
                                 </StackPanel>
                             </Grid>
                         </Border>
 
                         <!-- ==== Win popup overlay ==== -->
                         <Border Grid.RowSpan="6"
-                        Panel.ZIndex="25"
-                        HorizontalAlignment="Center"
-                        VerticalAlignment="Bottom"
-                        Margin="0,0,0,-315"
-                        Padding="30,26"
-                        CornerRadius="22"
-                        Visibility="{Binding HasSpinResult, Converter={StaticResource BoolToVis}}"
-                        Opacity="0">
+                                Panel.ZIndex="25"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Bottom"
+                                Margin="0,0,0,-315"
+                                Padding="30,26"
+                                CornerRadius="22"
+                                Visibility="{Binding HasSpinResult, Converter={StaticResource BoolToVis}}"
+                                Opacity="0">
                             <Border.Style>
                                 <Style TargetType="Border">
-                                    <Setter Property="Background" Value="#FFFDE7"/>
-                                    <Setter Property="BorderBrush" Value="#FFFFFFFF"/>
-                                    <Setter Property="BorderThickness" Value="3"/>
+                                    <Setter Property="Background" Value="#FFFDE7" />
+                                    <Setter Property="BorderBrush" Value="#FFFFFFFF" />
+                                    <Setter Property="BorderThickness" Value="3" />
                                     <Setter Property="Effect">
                                         <Setter.Value>
-                                            <DropShadowEffect BlurRadius="28" ShadowDepth="0" Color="#CC000000"/>
+                                            <DropShadowEffect BlurRadius="28" ShadowDepth="0" Color="#CC000000" />
                                         </Setter.Value>
                                     </Setter>
-                                    <Setter Property="RenderTransformOrigin" Value="0.5,0.5"/>
+                                    <Setter Property="RenderTransformOrigin" Value="0.5,0.5" />
                                     <Setter Property="RenderTransform">
                                         <Setter.Value>
-                                            <ScaleTransform ScaleX="0.75" ScaleY="0.75"/>
+                                            <ScaleTransform ScaleX="0.75" ScaleY="0.75" />
                                         </Setter.Value>
                                     </Setter>
                                     <Style.Triggers>
@@ -335,22 +490,25 @@
                                                 <BeginStoryboard>
                                                     <Storyboard>
                                                         <DoubleAnimation Storyboard.TargetProperty="RenderTransform.ScaleX"
-                                                                 From="0.4" To="1"
-                                                                 Duration="0:0:0.35">
+                                                                        From="0.4"
+                                                                        To="1"
+                                                                        Duration="0:0:0.35">
                                                             <DoubleAnimation.EasingFunction>
-                                                                <BackEase Amplitude="0.7" EasingMode="EaseOut"/>
+                                                                <BackEase Amplitude="0.7" EasingMode="EaseOut" />
                                                             </DoubleAnimation.EasingFunction>
                                                         </DoubleAnimation>
                                                         <DoubleAnimation Storyboard.TargetProperty="RenderTransform.ScaleY"
-                                                                 From="0.4" To="1"
-                                                                 Duration="0:0:0.35">
+                                                                        From="0.4"
+                                                                        To="1"
+                                                                        Duration="0:0:0.35">
                                                             <DoubleAnimation.EasingFunction>
-                                                                <BackEase Amplitude="0.7" EasingMode="EaseOut"/>
+                                                                <BackEase Amplitude="0.7" EasingMode="EaseOut" />
                                                             </DoubleAnimation.EasingFunction>
                                                         </DoubleAnimation>
                                                         <DoubleAnimation Storyboard.TargetProperty="Opacity"
-                                                                 From="0" To="1"
-                                                                 Duration="0:0:0.3"/>
+                                                                        From="0"
+                                                                        To="1"
+                                                                        Duration="0:0:0.3" />
                                                     </Storyboard>
                                                 </BeginStoryboard>
                                             </DataTrigger.EnterActions>
@@ -359,24 +517,49 @@
                                 </Style>
                             </Border.Style>
                             <StackPanel HorizontalAlignment="Center">
-                                <TextBlock Text="{Binding LastResultTitle}" FontSize="44" FontWeight="Black" Foreground="#111"
-                                   HorizontalAlignment="Center" TextAlignment="Center"/>
-                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,14,0,0">
-                                    <TextBlock Text="Number" FontSize="22" FontWeight="SemiBold" Foreground="#111"
-                                       VerticalAlignment="Center" Margin="0,0,10,0"/>
-                                    <Border Width="70" Height="70" CornerRadius="35" BorderThickness="3" BorderBrush="#FFFFFFFF"
-                                    Background="{Binding LastSpinColor, Converter={StaticResource SpinColorToBrushConverter}}">
+                                <TextBlock Text="{Binding LastResultTitle}"
+                                           FontSize="44"
+                                           FontWeight="Black"
+                                           Foreground="#111"
+                                           HorizontalAlignment="Center"
+                                           TextAlignment="Center" />
+                                <StackPanel Orientation="Horizontal"
+                                            HorizontalAlignment="Center"
+                                            Margin="0,14,0,0">
+                                    <TextBlock Text="Number"
+                                               FontSize="22"
+                                               FontWeight="SemiBold"
+                                               Foreground="#111"
+                                               VerticalAlignment="Center"
+                                               Margin="0,0,10,0" />
+                                    <Border Width="70"
+                                            Height="70"
+                                            CornerRadius="35"
+                                            BorderThickness="3"
+                                            BorderBrush="#FFFFFFFF"
+                                            Background="{Binding LastSpinColor, Converter={StaticResource SpinColorToBrushConverter}}">
                                         <Border.Effect>
-                                            <DropShadowEffect BlurRadius="18" ShadowDepth="0" Color="#88000000"/>
+                                            <DropShadowEffect BlurRadius="18" ShadowDepth="0" Color="#88000000" />
                                         </Border.Effect>
-                                        <TextBlock Text="{Binding LastSpinNumber}" FontSize="30" FontWeight="Bold" Foreground="White"
-                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        <TextBlock Text="{Binding LastSpinNumber}"
+                                                   FontSize="30"
+                                                   FontWeight="Bold"
+                                                   Foreground="White"
+                                                   HorizontalAlignment="Center"
+                                                   VerticalAlignment="Center" />
                                     </Border>
                                 </StackPanel>
-                                <TextBlock Text="RESULT" FontSize="20" FontWeight="Bold" Foreground="#4A148C"
-                                   HorizontalAlignment="Center" Margin="0,18,0,0"/>
-                                <TextBlock Text="{Binding LastResultAmountDisplay}" FontSize="38" FontWeight="Black"
-                                   Foreground="#111" HorizontalAlignment="Center"/>
+                                <TextBlock Text="RESULT"
+                                           FontSize="20"
+                                           FontWeight="Bold"
+                                           Foreground="#4A148C"
+                                           HorizontalAlignment="Center"
+                                           Margin="0,18,0,0" />
+                                <TextBlock Text="{Binding LastResultAmountDisplay}"
+                                           FontSize="38"
+                                           FontWeight="Black"
+                                           Foreground="#111"
+                                           HorizontalAlignment="Center" />
                             </StackPanel>
                         </Border>
                     </Grid>
@@ -384,66 +567,67 @@
 
                 <!-- ===== RIGHT COLUMN: WHEEL + BETS/RESULT + CHIPS ===== -->
                 <StackPanel Grid.Row="1" Grid.Column="2">
-
                     <!-- ===== RIGHT: WHEEL (animated) ===== -->
                     <Border Style="{StaticResource Card}">
                         <Grid>
                             <Grid.RowDefinitions>
-                                <RowDefinition Height="4"/>
-                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="4" />
+                                <RowDefinition Height="*" />
                             </Grid.RowDefinitions>
-                            <Border Grid.Row="0" Background="#88d4af37" CornerRadius="6,6,0,0"/>
-                            <controlsLocal:RouletteWheelControl x:Name="WheelControl" Grid.Row="1"/>
+                            <Border Grid.Row="0" Background="#88d4af37" CornerRadius="6,6,0,0" />
+                            <controlsLocal:RouletteWheelControl x:Name="WheelControl" Grid.Row="1" />
                         </Grid>
                     </Border>
-
-                
 
                     <!-- ===== Result + Spin ===== -->
                     <Border Style="{StaticResource Card}">
                         <Grid>
                             <Grid.RowDefinitions>
-                                <RowDefinition Height="4"/>
-                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="4" />
+                                <RowDefinition Height="*" />
                             </Grid.RowDefinitions>
-                            <Border Grid.Row="0" Background="#88d4af37" CornerRadius="6,6,0,0"/>
+                            <Border Grid.Row="0" Background="#88d4af37" CornerRadius="6,6,0,0" />
                             <Grid Grid.Row="1">
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition/>
-                                    <ColumnDefinition Width="200"/>
+                                    <ColumnDefinition />
+                                    <ColumnDefinition Width="200" />
                                 </Grid.ColumnDefinitions>
 
                                 <StackPanel>
-                                    <TextBlock Text="Previus Result" FontWeight="SemiBold" FontSize="14" Foreground="#fdf5d7"/>
+                                    <TextBlock Text="Previous Result"
+                                               FontWeight="SemiBold"
+                                               FontSize="14"
+                                               Foreground="#fdf5d7" />
                                     <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
-                                        <Border Width="72" Height="72" CornerRadius="36"
-                                        Background="{Binding LastSpinColor, Converter={StaticResource SpinColorToBrushConverter}}">
+                                        <Border Width="72"
+                                                Height="72"
+                                                CornerRadius="36"
+                                                Background="{Binding LastSpinColor, Converter={StaticResource SpinColorToBrushConverter}}">
                                             <TextBlock Text="{Binding LastSpinNumber}"
-                                               VerticalAlignment="Center" HorizontalAlignment="Center"
-                                               FontSize="20" FontWeight="Bold" Foreground="White"/>
+                                                       VerticalAlignment="Center"
+                                                       HorizontalAlignment="Center"
+                                                       FontSize="20"
+                                                       FontWeight="Bold"
+                                                       Foreground="White" />
                                         </Border>
                                         <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
-                                            <!--<TextBlock Text="{Binding LastSpinLabel}" FontSize="14"/>-->
-                                            <!--<TextBlock Text="{Binding LastNetResult, StringFormat=Net: {0:+#;-#;0}}"
-                                               FontSize="16" FontWeight="SemiBold"/>-->
+                                            <!-- Additional result details can be placed here -->
                                         </StackPanel>
                                     </StackPanel>
                                 </StackPanel>
 
-                                <StackPanel Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Center">
-                                    <Button Content="Spin" Width="160" Height="44" Command="{Binding SpinCommand}" Margin="0,0,0,4"/>
-                                    <Button Content="Clear Bets" Width="160" Margin="0,4,0,0" Command="{Binding ClearBetsCommand}"/>
-                                    <!--<StackPanel Orientation="Horizontal" Margin="0,12,0,0" VerticalAlignment="Center">
-                                <CheckBox Content="Use seed"
-                                          IsChecked="{Binding UseSeed}"
-                                          VerticalAlignment="Center"
-                                          Margin="0,0,8,0"/>
-                                <TextBox Width="100"
-                                         Height="26"
-                                         VerticalContentAlignment="Center"
-                                         IsEnabled="{Binding UseSeed}"
-                                         Text="{Binding SeedText, UpdateSourceTrigger=PropertyChanged}"/>
-                            </StackPanel>-->
+                                <StackPanel Grid.Column="1"
+                                            HorizontalAlignment="Right"
+                                            VerticalAlignment="Center">
+                                    <Button Content="Spin"
+                                            Width="160"
+                                            Height="44"
+                                            Command="{Binding SpinCommand}"
+                                            Margin="0,0,0,4" />
+                                    <Button Content="Clear Bets"
+                                            Width="160"
+                                            Margin="0,4,0,0"
+                                            Command="{Binding ClearBetsCommand}" />
                                 </StackPanel>
                             </Grid>
                         </Grid>
@@ -453,47 +637,60 @@
                     <Border Style="{StaticResource Card}">
                         <Grid>
                             <Grid.RowDefinitions>
-                                <RowDefinition Height="4"/>
-                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="4" />
+                                <RowDefinition Height="*" />
                             </Grid.RowDefinitions>
-                            <Border Grid.Row="0" Background="#88d4af37" CornerRadius="6,6,0,0"/>
+                            <Border Grid.Row="0" Background="#88d4af37" CornerRadius="6,6,0,0" />
                             <StackPanel Grid.Row="1">
-                                <TextBlock Text="Chips" Margin="0,0,0,4" FontWeight="SemiBold" Foreground="#fdf5d7"/>
+                                <TextBlock Text="Chips"
+                                           Margin="0,0,0,4"
+                                           FontWeight="SemiBold"
+                                           Foreground="#fdf5d7" />
                                 <ListBox ItemsSource="{Binding ChipValues}"
-                                 SelectedItem="{Binding SelectedChipValue, Mode=TwoWay}"
-                                 BorderThickness="0" Background="Transparent">
+                                         SelectedItem="{Binding SelectedChipValue, Mode=TwoWay}"
+                                         BorderThickness="0"
+                                         Background="Transparent">
                                     <ListBox.ItemsPanel>
                                         <ItemsPanelTemplate>
-                                            <WrapPanel/>
+                                            <WrapPanel />
                                         </ItemsPanelTemplate>
                                     </ListBox.ItemsPanel>
                                     <ListBox.ItemTemplate>
                                         <DataTemplate>
                                             <Grid Width="34" Height="34" Margin="0,0,6,6">
                                                 <Ellipse Fill="{Binding Converter={StaticResource ChipBrushConverter}}"
-                                                 Stroke="White" StrokeThickness="4" StrokeDashArray="1,2"/>
-                                                <Ellipse Width="22" Height="22" Fill="White" Opacity="0.92"/>
-                                                <TextBlock Text="{Binding}" FontWeight="Bold" FontSize="12"
-                                                   HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="#222"/>
+                                                         Stroke="White"
+                                                         StrokeThickness="4"
+                                                         StrokeDashArray="1,2" />
+                                                <Ellipse Width="22"
+                                                         Height="22"
+                                                         Fill="White"
+                                                         Opacity="0.92" />
+                                                <TextBlock Text="{Binding}"
+                                                           FontWeight="Bold"
+                                                           FontSize="12"
+                                                           HorizontalAlignment="Center"
+                                                           VerticalAlignment="Center"
+                                                           Foreground="#222" />
                                                 <Grid.Effect>
-                                                    <DropShadowEffect BlurRadius="6" ShadowDepth="0" Color="#55000000"/>
+                                                    <DropShadowEffect BlurRadius="6" ShadowDepth="0" Color="#55000000" />
                                                 </Grid.Effect>
                                             </Grid>
                                         </DataTemplate>
                                     </ListBox.ItemTemplate>
                                     <ListBox.ItemContainerStyle>
                                         <Style TargetType="ListBoxItem">
-                                            <Setter Property="Padding" Value="0"/>
-                                            <Setter Property="BorderThickness" Value="0"/>
-                                            <Setter Property="Background" Value="Transparent"/>
-                                            <Setter Property="HorizontalContentAlignment" Value="Center"/>
-                                            <Setter Property="Cursor" Value="Hand"/>
-                                            <Setter Property="ToolTip" Value="{Binding}"/>
+                                            <Setter Property="Padding" Value="0" />
+                                            <Setter Property="BorderThickness" Value="0" />
+                                            <Setter Property="Background" Value="Transparent" />
+                                            <Setter Property="HorizontalContentAlignment" Value="Center" />
+                                            <Setter Property="Cursor" Value="Hand" />
+                                            <Setter Property="ToolTip" Value="{Binding}" />
                                             <Style.Triggers>
                                                 <Trigger Property="IsSelected" Value="True">
                                                     <Setter Property="Effect">
                                                         <Setter.Value>
-                                                            <DropShadowEffect BlurRadius="8" ShadowDepth="0" Color="#88000000"/>
+                                                            <DropShadowEffect BlurRadius="8" ShadowDepth="0" Color="#88000000" />
                                                         </Setter.Value>
                                                     </Setter>
                                                 </Trigger>
@@ -504,35 +701,47 @@
                             </StackPanel>
                         </Grid>
                     </Border>
-
                 </StackPanel>
+
                 <!-- ===== RECENT NUMBERS ===== -->
                 <Border Grid.Row="2" Grid.ColumnSpan="1" Style="{StaticResource Card}">
                     <Grid>
                         <Grid.RowDefinitions>
-                            <RowDefinition Height="4"/>
-                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="4" />
+                            <RowDefinition Height="*" />
                         </Grid.RowDefinitions>
-                        <Border Grid.Row="0" Background="#88d4af37" CornerRadius="6,6,0,0"/>
+                        <Border Grid.Row="0" Background="#88d4af37" CornerRadius="6,6,0,0" />
                         <StackPanel Grid.Row="1">
-                            <TextBlock Text="Recent Numbers" FontWeight="SemiBold" FontSize="14" Foreground="#fdf5d7"/>
+                            <TextBlock Text="Recent Numbers"
+                                       FontWeight="SemiBold"
+                                       FontSize="14"
+                                       Foreground="#fdf5d7" />
                             <ItemsControl ItemsSource="{Binding RecentSpins}" Margin="0,6,0,0">
                                 <ItemsControl.ItemsPanel>
                                     <ItemsPanelTemplate>
-                                        <StackPanel Orientation="Horizontal"/>
+                                        <StackPanel Orientation="Horizontal" />
                                     </ItemsPanelTemplate>
                                 </ItemsControl.ItemsPanel>
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
                                         <StackPanel Margin="0,0,10,0" HorizontalAlignment="Center">
-                                            <Border Width="46" Height="46" CornerRadius="23"
-                                            Background="{Binding Color, Converter={StaticResource SpinColorToBrushConverter}}"
-                                            HorizontalAlignment="Center">
-                                                <TextBlock Text="{Binding Number}" FontSize="18" FontWeight="Bold" Foreground="White"
-                                                   VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                            <Border Width="46"
+                                                    Height="46"
+                                                    CornerRadius="23"
+                                                    Background="{Binding Color, Converter={StaticResource SpinColorToBrushConverter}}"
+                                                    HorizontalAlignment="Center">
+                                                <TextBlock Text="{Binding Number}"
+                                                           FontSize="18"
+                                                           FontWeight="Bold"
+                                                           Foreground="White"
+                                                           VerticalAlignment="Center"
+                                                           HorizontalAlignment="Center" />
                                             </Border>
-                                            <TextBlock Text="{Binding ColorLabel}" FontSize="11" Margin="0,4,0,0"
-                                               HorizontalAlignment="Center" Foreground="#f9f7ea"/>
+                                            <TextBlock Text="{Binding ColorLabel}"
+                                                       FontSize="11"
+                                                       Margin="0,4,0,0"
+                                                       HorizontalAlignment="Center"
+                                                       Foreground="#f9f7ea" />
                                         </StackPanel>
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>

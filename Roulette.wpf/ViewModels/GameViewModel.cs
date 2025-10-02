@@ -1,13 +1,14 @@
-﻿using System;
+﻿using MahApps.Metro.Controls;
+using System;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
-using Media = System.Windows.Media;
-using Core = Roulette.Core;
 using System.Windows.Threading;
+using Core = Roulette.Core;
+using Media = System.Windows.Media;
 
 namespace Roulette.Wpf.ViewModels;
 
@@ -161,7 +162,7 @@ public sealed class GameViewModel : INotifyPropertyChanged
         Subscribe(OutsideDozens);
         Subscribe(OutsideColumns);
         RefreshBets();
-        Balance = 1000;
+        Balance = 10000;
         RefreshStakeTotals();
         AddStakeCommand = new RelayCommand(keyObj =>
         {
@@ -172,8 +173,8 @@ public sealed class GameViewModel : INotifyPropertyChanged
             if (TableStake + SelectedChipValue > Balance)
                 return;
 
-            // Assign chip brush based on currently selected chip
-            cell.ChipBrush = GetChipBrushForValue(SelectedChipValue);
+            var chipBrush = GetChipBrushForValue(SelectedChipValue);
+            cell.AddChip(new ChipView(SelectedChipValue, chipBrush));
             cell.Stake += SelectedChipValue;
         });
 
@@ -393,11 +394,11 @@ public sealed class GameViewModel : INotifyPropertyChanged
 
     void ClearAllStakes()
     {
-        foreach (var c in ZeroCell) c.Stake = 0;
-        foreach (var c in NumberCells) c.Stake = 0;
-        foreach (var c in OutsideEvenMoney) c.Stake = 0;
-        foreach (var c in OutsideDozens) c.Stake = 0;
-        foreach (var c in OutsideColumns) c.Stake = 0;
+        foreach (var c in ZeroCell) c.Reset();
+        foreach (var c in NumberCells) c.Reset();
+        foreach (var c in OutsideEvenMoney) c.Reset();
+        foreach (var c in OutsideDozens) c.Reset();
+        foreach (var c in OutsideColumns) c.Reset();
         RefreshBets();
     }
 
@@ -424,9 +425,7 @@ public sealed class CellView : INotifyPropertyChanged
     public string Label { get; }        // UI label
     public Media.Brush Background { get; } // cell background (felt/red/black)
 
-    Media.Brush _chipBrush = new Media.SolidColorBrush(Media.Colors.White);
-    public Media.Brush ChipBrush { get => _chipBrush; set { _chipBrush = value; PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ChipBrush))); } }
-
+    public ObservableCollection<ChipView> Chips { get; } = new();
     int _stake;
     public int Stake { get => _stake; set { _stake = value; PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Stake))); } }
 
@@ -434,8 +433,25 @@ public sealed class CellView : INotifyPropertyChanged
     {
         Key = key; Label = label; Background = background;
     }
+    public void AddChip(ChipView chip) => Chips.Add(chip);
 
+    public void Reset()
+    {
+        Chips.Clear();
+        Stake = 0;
+    }
     public event PropertyChangedEventHandler? PropertyChanged;
+}
+public sealed class ChipView
+{
+    public int Value { get; }
+    public Media.Brush ChipBrush { get; }
+
+    public ChipView(int value, Media.Brush chipBrush)
+    {
+        Value = value;
+        ChipBrush = chipBrush;
+    }
 }
 
 // A single compiled bet row for the summary list
