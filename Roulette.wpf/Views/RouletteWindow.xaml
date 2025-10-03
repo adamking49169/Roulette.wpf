@@ -718,7 +718,7 @@
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="4" />
-                            <RowDefinition Height="*" />
+                            <RowDefinition Height="70" />
                         </Grid.RowDefinitions>
                         <Border Grid.Row="0" Background="#88d4af37" CornerRadius="6,6,0,0" />
                         <StackPanel Grid.Row="1">

@@ -317,7 +317,7 @@ public partial class RouletteWheelControl : UserControl
         {
             Width = PocketCenterRadius * 2 + 4,
             Height = PocketCenterRadius * 2 + 4,
-            Stroke = Brushes.White,
+            //Stroke = Brushes.White,
             StrokeThickness = 1.5
         };
         Canvas.SetLeft(ring, (WheelSize - ring.Width) / 2);
